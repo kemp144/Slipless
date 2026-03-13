@@ -1,0 +1,79 @@
+import SwiftUI
+
+struct SlipLogView: View {
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var modelContext
+    var habit: HabitProfile
+    
+    @State private var date = Date()
+    @State private var intensity = 3.0
+    @State private var selectedTrigger: String?
+    @State private var note = ""
+    
+    let triggers = ["Stress", "Boredom", "Social", "Tiredness", "Habit Loop", "Other"]
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("When did it happen?")) {
+                    DatePicker("Date & Time", selection: $date)
+                }
+                
+                Section(header: Text("Trigger")) {
+                    Picker("What triggered it?", selection: $selectedTrigger) {
+                        Text("Select...").tag(String?.none)
+                        ForEach(triggers, id: \.self) { trigger in
+                            Text(trigger).tag(String?.some(trigger))
+                        }
+                    }
+                }
+                
+                Section(header: Text("Intensity (1-5)")) {
+                    Slider(value: $intensity, in: 1...5, step: 1) {
+                        Text("Intensity")
+                    }
+                    HStack {
+                        Text("Mild")
+                        Spacer()
+                        Text("Strong")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                }
+                
+                Section(header: Text("Note")) {
+                    TextEditor(text: $note)
+                        .frame(height: 100)
+                }
+            }
+            .navigationTitle("Log Slip")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        saveSlip()
+                        dismiss()
+                    }
+                    .bold()
+                }
+            }
+        }
+    }
+    
+    func saveSlip() {
+        let slip = SlipEvent(date: date, trigger: selectedTrigger, intensity: Int(intensity), note: note)
+        habit.slips.append(slip)
+        
+        // Update habit last slip date if this slip is more recent
+        if let last = habit.lastSlipDate {
+            if date > last {
+                habit.lastSlipDate = date
+            }
+        } else {
+            habit.lastSlipDate = date
+        }
+    }
+}
