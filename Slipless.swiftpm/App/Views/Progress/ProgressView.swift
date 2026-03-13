@@ -44,6 +44,17 @@ struct ProgressView: View {
                                     .foregroundColor(.green)
                             }
                         }
+
+                        if let dailyMinutes = habit.timeSavedPerDay, dailyMinutes > 0 {
+                            HStack {
+                                Text("Time Saved")
+                                Spacer()
+                                let fromDate = habit.lastSlipDate ?? habit.startDate
+                                let days = Calendar.current.dateComponents([.day], from: fromDate, to: Date()).day ?? 0
+                                Text(formatMinutes(days * dailyMinutes))
+                                    .foregroundColor(.blue)
+                            }
+                        }
                         
                         HStack {
                             Text("Urges Overcome")

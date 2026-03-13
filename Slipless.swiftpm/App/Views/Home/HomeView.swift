@@ -5,7 +5,8 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var habits: [HabitProfile]
     @Environment(SettingsManager.self) private var settings
-    
+    @Binding var selectedTab: Int
+
     @State private var showingUrgeSheet = false
     @State private var showingSlipSheet = false
     @State private var pledgeCompleted = false // In a real app, store this persistently per day
@@ -129,21 +130,29 @@ struct HomeView: View {
     }
     
     func statsGrid(habit: HabitProfile) -> some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+        let fromDate = habit.lastSlipDate ?? habit.startDate
+        let days = Calendar.current.dateComponents([.day], from: fromDate, to: Date()).day ?? 0
+
+        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
             // Money Saved
             if let dailyCost = habit.moneySavedPerDay, dailyCost > 0 {
-                let days = Calendar.current.dateComponents([.day], from: habit.startDate, to: Date()).day ?? 0
                 let saved = Double(days) * dailyCost
                 statCard(title: "Money Saved", value: saved.formatted(.currency(code: habit.currencyCode)))
             }
-            
+
+            // Time Saved
+            if let dailyMinutes = habit.timeSavedPerDay, dailyMinutes > 0 {
+                let totalMinutes = days * dailyMinutes
+                statCard(title: "Time Saved", value: formatMinutes(totalMinutes))
+            }
+
             // Urges Survived
-            let urges = habit.urges.count
-            statCard(title: "Urges Won", value: "\(urges)")
-            
-            // Best Streak (Simplified: just show current for V1 or calculate if we had history)
-            // For V1 MVP, maybe just show "Slips"
-            statCard(title: "Total Slips", value: "\(habit.slips.count)")
+            statCard(title: "Urges Won", value: "\(habit.urges.count)")
+
+            Button(action: { selectedTab = 2 }) {
+                statCard(title: "Total Slips", value: "\(habit.slips.count)")
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal)
     }
