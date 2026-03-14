@@ -25,70 +25,160 @@ struct ProgressView: View {
     var body: some View {
         NavigationStack {
             if let habit = habit {
-                List {
-                    Section(header: Text("Stats")) {
-                        HStack {
-                            Text("Start Date")
-                            Spacer()
-                            Text(habit.startDate.formatted(date: .abbreviated, time: .omitted))
-                                .foregroundColor(.gray)
-                        }
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Calendar Heatmap
+                        CalendarHeatmapView(habit: habit)
+                            .padding(.horizontal)
                         
-                        if let money = habit.moneySavedPerDay {
-                            HStack {
-                                Text("Money Saved")
-                                Spacer()
-                                let fromDate = habit.lastSlipDate ?? habit.startDate
-                                let days = Calendar.current.dateComponents([.day], from: fromDate, to: Date()).day ?? 0
-                                Text((Double(days) * money).formatted(.currency(code: habit.currencyCode)))
-                                    .foregroundColor(.green)
-                            }
-                        }
-
-                        if let dailyMinutes = habit.timeSavedPerDay, dailyMinutes > 0 {
-                            HStack {
-                                Text("Time Saved")
-                                Spacer()
-                                let fromDate = habit.lastSlipDate ?? habit.startDate
-                                let days = Calendar.current.dateComponents([.day], from: fromDate, to: Date()).day ?? 0
-                                Text(formatMinutes(days * dailyMinutes))
-                                    .foregroundColor(.blue)
-                            }
-                        }
-                        
-                        HStack {
-                            Text("Urges Overcome")
-                            Spacer()
-                            Text("\(habit.urges.filter { $0.outcome == "passed" }.count)")
-                                .foregroundColor(.blue)
-                        }
-                    }
-                    
-                    Section(header: Text("Milestones")) {
-                        ForEach(milestones) { milestone in
-                            HStack {
-                                Image(systemName: milestone.isUnlocked ? "medal.fill" : "medal")
-                                    .foregroundColor(milestone.isUnlocked ? .yellow : .gray)
+                        // Recovery Trends & Stats
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Recovery Trends")
+                                .font(.headline)
+                                .padding(.horizontal)
+                            
+                            VStack(spacing: 0) {
+                                if let avgTime = ProgressAnalytics.calculateAverageTimeBetweenSlips(slips: habit.slips, startDate: habit.startDate) {
+                                    StatRow(title: "Average Time Between Slips", value: formatTimeInterval(avgTime))
+                                }
                                 
-                                Text(milestone.title)
-                                    .fontWeight(milestone.isUnlocked ? .bold : .regular)
-                                    .foregroundColor(milestone.isUnlocked ? .primary : .gray)
+                                if let longestGap = ProgressAnalytics.calculateLongestGap(slips: habit.slips, startDate: habit.startDate) {
+                                    StatRow(title: "Longest Streak", value: formatTimeInterval(longestGap))
+                                }
                                 
-                                Spacer()
-                                
-                                if milestone.isUnlocked {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.green)
-                                        .font(.caption)
+                                if let improvementText = ProgressAnalytics.generateImprovementText(slips: habit.slips, startDate: habit.startDate) {
+                                    Divider()
+                                    HStack {
+                                        Text(improvementText)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                            .padding(.vertical, 8)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal)
                                 }
                             }
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                        }
+                        
+                        // Pattern Insights
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Pattern Insights")
+                                .font(.headline)
+                                .padding(.horizontal)
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                if let triggerInsight = ProgressAnalytics.determineMostCommonTrigger(slips: habit.slips) {
+                                    InsightRow(icon: "lightbulb.fill", color: .yellow, text: triggerInsight)
+                                }
+                                
+                                let events = habit.slips.map { $0.date } + habit.urges.map { $0.date }
+                                if let timeInsight = ProgressAnalytics.determineDifficultTimeOfDay(events: events) {
+                                    InsightRow(icon: "clock.fill", color: .blue, text: timeInsight)
+                                }
+                                
+                                if habit.slips.isEmpty && habit.urges.isEmpty {
+                                    Text("Not enough data for insights yet.")
+                                        .foregroundColor(.secondary)
+                                        .font(.subheadline)
+                                }
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                        }
+                        
+                        // Milestones
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Milestones")
+                                .font(.headline)
+                                .padding(.horizontal)
+                            
+                            VStack(spacing: 0) {
+                                ForEach(milestones) { milestone in
+                                    HStack {
+                                        Image(systemName: milestone.isUnlocked ? "medal.fill" : "medal")
+                                            .foregroundColor(milestone.isUnlocked ? .yellow : .gray)
+                                            .frame(width: 24)
+                                        
+                                        Text(milestone.title)
+                                            .fontWeight(milestone.isUnlocked ? .bold : .regular)
+                                            .foregroundColor(milestone.isUnlocked ? .primary : .gray)
+                                        
+                                        Spacer()
+                                        
+                                        if milestone.isUnlocked {
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(.green)
+                                                .font(.caption)
+                                        }
+                                    }
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal)
+                                    
+                                    if milestone.id != milestones.last?.id {
+                                        Divider()
+                                    }
+                                }
+                            }
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .cornerRadius(12)
+                            .padding(.horizontal)
                         }
                     }
+                    .padding(.vertical)
                 }
                 .navigationTitle("Progress")
+                .background(Color(.systemGroupedBackground))
             } else {
                 ContentUnavailableView("No Data", systemImage: "chart.bar")
             }
+        }
+    }
+    
+    private func formatTimeInterval(_ interval: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.day]
+        formatter.unitsStyle = .full
+        formatter.maximumUnitCount = 1
+        return formatter.string(from: interval) ?? "0 days"
+    }
+}
+
+struct StatRow: View {
+    let title: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Text(title)
+                .foregroundColor(.primary)
+            Spacer()
+            Text(value)
+                .foregroundColor(.secondary)
+                .fontWeight(.medium)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal)
+    }
+}
+
+struct InsightRow: View {
+    let icon: String
+    let color: Color
+    let text: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(color)
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(.primary)
         }
     }
 }

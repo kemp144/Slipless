@@ -7,6 +7,8 @@ struct SettingsView: View {
     @Environment(SettingsManager.self) private var settings
     
     @State private var showingResetAlert = false
+    @State private var showingShareSheet = false
+    @State private var exportSummaryText = ""
     
     var body: some View {
         NavigationStack {
@@ -16,6 +18,21 @@ struct SettingsView: View {
                     Text("Hides habit names in widgets and home screen.")
                         .font(.caption)
                         .foregroundColor(.gray)
+                }
+                
+                Section(header: Text("Data")) {
+                    Button(action: {
+                        if let habit = habits.first {
+                            exportSummaryText = ProgressAnalytics.generateExportSummaryText(profile: habit, isStealthMode: settings.isStealthModeEnabled)
+                            showingShareSheet = true
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Export Progress Summary")
+                        }
+                    }
+                    .disabled(habits.first == nil)
                 }
                 
                 Section(header: Text("Legal")) {
@@ -47,6 +64,9 @@ struct SettingsView: View {
             } message: {
                 Text("This will delete your habit, progress, and history. This action cannot be undone.")
             }
+            .sheet(isPresented: $showingShareSheet) {
+                ShareSheet(activityItems: [exportSummaryText])
+            }
         }
     }
     
@@ -65,6 +85,18 @@ struct SettingsView: View {
     }
 }
 
+struct ShareSheet: UIViewControllerRepresentable {
+    var activityItems: [Any]
+    var applicationActivities: [UIActivity]? = nil
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
 struct AppReviewNotesView: View {
     var body: some View {
         ScrollView {
@@ -76,11 +108,10 @@ struct AppReviewNotesView: View {
             - No medical claims are made.
             - No user accounts or login required.
             - All data is stored locally on the device using SwiftData.
-            - "Stealth Mode" allows users to hide sensitive habit names for privacy.
+            - "Stealth Mode" allows users to hide sensitive custom habit names for privacy.
             - "Urge Reset" is a simple breathing timer.
             
-            ## Mature Content
-            The app includes optional presets for "Alcohol" or "Porn" for users struggling with those habits. These can be disabled in the source code via `HabitPreset.swift` if required for specific rating targets, but the app is designed to be neutral and non-explicit regardless of the chosen habit.
+            Users can enter custom habit names, allowing them to track any personal habit they wish to reduce or quit, while the app remains neutral and completely private.
             """)
             .padding()
         }

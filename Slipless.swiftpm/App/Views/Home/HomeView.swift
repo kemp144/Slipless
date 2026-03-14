@@ -9,7 +9,7 @@ struct HomeView: View {
 
     @State private var showingUrgeSheet = false
     @State private var showingSlipSheet = false
-    @State private var pledgeCompleted = false // In a real app, store this persistently per day
+    @State private var showingCheckInSheet = false
     
     var habit: HabitProfile? { habits.first }
     
@@ -20,7 +20,7 @@ struct HomeView: View {
                 
                 if let habit = habit {
                     ScrollView {
-                        VStack(spacing: 30) {
+                        VStack(spacing: 24) {
                             // Hero Counter
                             TimelineView(.periodic(from: .now, by: 60)) { context in
                                 streakCounter(habit: habit, date: context.date)
@@ -33,30 +33,16 @@ struct HomeView: View {
                                 .fontWeight(.medium)
                                 .foregroundColor(.gray)
                             
-                            // Buttons
-                            VStack(spacing: 16) {
-                                Button(action: { showingUrgeSheet = true }) {
-                                    Text("I have an urge")
-                                        .font(.headline)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.black)
-                                        .frame(maxWidth: .infinity)
-                                        .padding()
-                                        .background(Color.white)
-                                        .cornerRadius(16)
-                                }
-                                
-                                Button(action: { showingSlipSheet = true }) {
-                                    Text("Log a slip")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
-                                }
+                            // Check-In Card
+                            if !hasCheckedInToday(habit: habit) {
+                                checkInCard
                             }
-                            .padding(.horizontal, 40)
-                            .padding(.top, 20)
                             
-                            // Pledge Card
-                            pledgeCard
+                            // Quick Actions
+                            quickActions
+                            
+                            // Motivation / Why I Started
+                            motivationCard(habit: habit)
                             
                             // Stats Summary
                             statsGrid(habit: habit)
@@ -73,8 +59,20 @@ struct HomeView: View {
             .sheet(isPresented: $showingSlipSheet) {
                 SlipLogView(habit: habit!)
             }
-            .onAppear {
-                checkPledgeStatus()
+            .sheet(isPresented: $showingCheckInSheet) {
+                DailyCheckInView(habit: habit!)
+            }
+            .onOpenURL { url in
+                if url.host == "urge" {
+                    selectedTab = 0
+                    showingUrgeSheet = true
+                } else if url.host == "slip" {
+                    selectedTab = 0
+                    showingSlipSheet = true
+                } else if url.host == "checkin" {
+                    selectedTab = 0
+                    showingCheckInSheet = true
+                }
             }
         }
     }
@@ -93,40 +91,83 @@ struct HomeView: View {
         }
     }
     
-    var pledgeCard: some View {
-        Button(action: {
-            withAnimation {
-                pledgeCompleted.toggle()
-                if pledgeCompleted {
-                    UserDefaults.standard.set(Date(), forKey: "lastPledgeDate")
-                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                    generator.impactOccurred()
-                }
-            }
-        }) {
+    var checkInCard: some View {
+        Button(action: { showingCheckInSheet = true }) {
             HStack {
-                Image(systemName: pledgeCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundColor(pledgeCompleted ? .green : .gray)
-                
-                VStack(alignment: .leading) {
-                    Text("Daily Pledge")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    Text("Just for today, I am in control.")
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Daily Check-in")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("Take a moment to log how you're feeling today.")
                         .font(.subheadline)
-                        .fontWeight(.medium)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(Color.white.opacity(0.1))
+            .cornerRadius(16)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    var quickActions: some View {
+        VStack(spacing: 16) {
+            Button(action: { showingUrgeSheet = true }) {
+                Text(settings.isStealthModeEnabled ? "Need Support" : "I have an urge")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(16)
+            }
+            
+            Button(action: { showingSlipSheet = true }) {
+                Text(settings.isStealthModeEnabled ? "Log Event" : "Log a slip")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.7))
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(16)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func motivationCard(habit: HabitProfile) -> some View {
+        if let primaryReason = habit.primaryReasonText, !primaryReason.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.yellow)
+                    Text("Why I Started")
+                        .font(.headline)
                         .foregroundColor(.white)
                 }
                 
-                Spacer()
+                Text(primaryReason)
+                    .font(.title3)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
+                    .italic()
+                
+                if let note = habit.noteToSelf, !note.isEmpty {
+                    Text(note)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .padding(.top, 4)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
             .background(Color.white.opacity(0.08))
             .cornerRadius(16)
         }
-        .buttonStyle(.plain)
-        .padding(.horizontal)
     }
     
     func statsGrid(habit: HabitProfile) -> some View {
@@ -147,14 +188,13 @@ struct HomeView: View {
             }
 
             // Urges Survived
-            statCard(title: "Urges Won", value: "\(habit.urges.count)")
+            statCard(title: "Urges Won", value: "\(habit.urges.filter { $0.outcome == "passed" }.count)")
 
             Button(action: { selectedTab = 2 }) {
                 statCard(title: "Total Slips", value: "\(habit.slips.count)")
             }
             .buttonStyle(.plain)
         }
-        .padding(.horizontal)
     }
     
     func statCard(title: String, value: String) -> some View {
@@ -173,13 +213,8 @@ struct HomeView: View {
         .cornerRadius(12)
     }
     
-    func checkPledgeStatus() {
-        if let lastDate = UserDefaults.standard.object(forKey: "lastPledgeDate") as? Date {
-            if Calendar.current.isDateInToday(lastDate) {
-                pledgeCompleted = true
-            } else {
-                pledgeCompleted = false
-            }
-        }
+    func hasCheckedInToday(habit: HabitProfile) -> Bool {
+        let calendar = Calendar.current
+        return habit.checkIns.contains(where: { calendar.isDateInToday($0.date) })
     }
 }

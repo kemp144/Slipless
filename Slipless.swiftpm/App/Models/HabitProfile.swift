@@ -12,10 +12,15 @@ final class HabitProfile {
     var timeSavedPerDay: Int? // in minutes
     var currencyCode: String
     
+    // New Motivation & Context Fields
+    var primaryReasonText: String?
+    var noteToSelf: String?
+    
     // Relationships
     @Relationship(deleteRule: .cascade) var reasons: [PinnedReason] = []
     @Relationship(deleteRule: .cascade) var slips: [SlipEvent] = []
     @Relationship(deleteRule: .cascade) var urges: [UrgeEvent] = []
+    @Relationship(deleteRule: .cascade) var checkIns: [DailyCheckIn] = []
     
     var createdDate: Date
     
@@ -25,7 +30,9 @@ final class HabitProfile {
          startDate: Date = Date(),
          moneySavedPerDay: Double? = nil,
          timeSavedPerDay: Int? = nil,
-         currencyCode: String = Locale.current.currency?.identifier ?? "USD") {
+         currencyCode: String = Locale.current.currency?.identifier ?? "USD",
+         primaryReasonText: String? = nil,
+         noteToSelf: String? = nil) {
         self.id = id
         self.name = name
         self.modeRawValue = mode.rawValue
@@ -33,6 +40,8 @@ final class HabitProfile {
         self.moneySavedPerDay = moneySavedPerDay
         self.timeSavedPerDay = timeSavedPerDay
         self.currencyCode = currencyCode
+        self.primaryReasonText = primaryReasonText
+        self.noteToSelf = noteToSelf
         self.createdDate = Date()
     }
     

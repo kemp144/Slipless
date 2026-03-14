@@ -201,34 +201,34 @@ struct OnboardingView: View {
     // MARK: - Step 4: Reasons
     var selectReasonsView: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Why are you quitting?")
+            Text("Why are you starting?")
                 .font(.largeTitle).bold()
                 .foregroundColor(.white)
             
             ScrollView {
-                VStack(spacing: 12) {
-                    let commonReasons = ["Health", "Money", "Time", "Relationships", "Mental Clarity", "Confidence", "Sleep"]
+                VStack(alignment: .leading, spacing: 20) {
                     
-                    ForEach(commonReasons, id: \.self) { reason in
-                        OptionCard(
-                            title: reason,
-                            icon: nil,
-                            isSelected: viewModel.selectedReasons.contains(reason)
-                        ) {
-                            if viewModel.selectedReasons.contains(reason) {
-                                viewModel.selectedReasons.removeAll { $0 == reason }
-                            } else {
-                                if viewModel.selectedReasons.count < 3 {
-                                    viewModel.selectedReasons.append(reason)
-                                }
-                            }
-                        }
+                    VStack(alignment: .leading) {
+                        Text("Your Primary Reason")
+                            .foregroundColor(.white)
+                        TextField("e.g. I want my time back.", text: $viewModel.primaryReasonText)
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                            .foregroundColor(.white)
+                    }
+                    
+                    VStack(alignment: .leading) {
+                        Text("A short note to self (Optional)")
+                            .foregroundColor(.gray)
+                        TextField("e.g. Just for today.", text: $viewModel.noteToSelf)
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                            .foregroundColor(.white)
                     }
                 }
             }
-            Text("Select up to 3")
-                .font(.caption)
-                .foregroundColor(.gray)
         }
         .padding()
     }

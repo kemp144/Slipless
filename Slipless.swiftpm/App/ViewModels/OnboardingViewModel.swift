@@ -13,6 +13,8 @@ class OnboardingViewModel {
     var moneySavedPerDay: Double?
     var timeSavedPerDay: Int?
     var selectedReasons: [String] = []
+    var primaryReasonText: String = ""
+    var noteToSelf: String = ""
     
     // Config
     let currencyCode = Locale.current.currency?.identifier ?? "USD"
@@ -33,7 +35,9 @@ class OnboardingViewModel {
             startDate: startDate,
             moneySavedPerDay: moneySavedPerDay,
             timeSavedPerDay: timeSavedPerDay,
-            currencyCode: currencyCode
+            currencyCode: currencyCode,
+            primaryReasonText: primaryReasonText.isEmpty ? nil : primaryReasonText,
+            noteToSelf: noteToSelf.isEmpty ? nil : noteToSelf
         )
         
         // Add reasons

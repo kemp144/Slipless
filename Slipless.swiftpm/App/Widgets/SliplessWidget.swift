@@ -36,23 +36,55 @@ struct SimpleEntry: TimelineEntry {
 
 struct SliplessWidgetEntryView : View {
     var entry: Provider.Entry
+    @Environment(\.widgetFamily) var family
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Slipless")
-                .font(.caption)
-                .foregroundColor(.gray)
-            
-            Spacer()
-            
-            Text(entry.streak)
-                .font(.largeTitle)
-                .bold()
-                .minimumScaleFactor(0.5)
-            
-            Text(entry.isStealth ? "Focus" : entry.habitName)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+        ZStack {
+            VStack(alignment: .leading) {
+                Text("Slipless")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                
+                Spacer()
+                
+                Text(entry.streak)
+                    .font(.largeTitle)
+                    .bold()
+                    .minimumScaleFactor(0.5)
+                
+                Text(entry.isStealth ? "Focus" : entry.habitName)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    
+                if family == .systemMedium {
+                    HStack {
+                        Link(destination: URL(string: "slipless://urge")!) {
+                            Text(entry.isStealth ? "Support" : "Urge")
+                                .font(.caption)
+                                .padding(6)
+                                .background(Color.white.opacity(0.2))
+                                .cornerRadius(8)
+                        }
+                        
+                        Link(destination: URL(string: "slipless://slip")!) {
+                            Text("Log")
+                                .font(.caption)
+                                .padding(6)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(8)
+                        }
+                        
+                        Link(destination: URL(string: "slipless://checkin")!) {
+                            Text("Check-in")
+                                .font(.caption)
+                                .padding(6)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(8)
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+            }
         }
         .containerBackground(for: .widget) {
             Color.black

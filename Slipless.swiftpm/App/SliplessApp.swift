@@ -11,7 +11,8 @@ struct SliplessApp: App {
             HabitProfile.self,
             SlipEvent.self,
             UrgeEvent.self,
-            PinnedReason.self
+            PinnedReason.self,
+            DailyCheckIn.self
         ])
     }
 }
