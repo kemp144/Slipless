@@ -11,25 +11,19 @@ extension Color {
 }
 
 struct AppWallpaperView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         GeometryReader { proxy in
             ZStack {
                 LinearGradient(
-                    colors: [
-                        Color(red: 0.06, green: 0.12, blue: 0.24),
-                        Color(red: 0.06, green: 0.28, blue: 0.33),
-                        Color(red: 0.16, green: 0.19, blue: 0.44)
-                    ],
+                    colors: baseGradientColors,
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
 
                 LinearGradient(
-                    colors: [
-                        Color(red: 0.99, green: 0.78, blue: 0.58).opacity(0.18),
-                        Color.clear,
-                        Color(red: 0.42, green: 0.84, blue: 0.92).opacity(0.14)
-                    ],
+                    colors: accentGradientColors,
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -37,10 +31,7 @@ struct AppWallpaperView: View {
                 Circle()
                     .fill(
                         RadialGradient(
-                            colors: [
-                                Color(red: 0.49, green: 0.95, blue: 0.87).opacity(0.92),
-                                Color(red: 0.49, green: 0.95, blue: 0.87).opacity(0.0)
-                            ],
+                            colors: topLeftGlowColors,
                             center: .center,
                             startRadius: 40,
                             endRadius: 380
@@ -53,10 +44,7 @@ struct AppWallpaperView: View {
                 Circle()
                     .fill(
                         RadialGradient(
-                            colors: [
-                                Color(red: 1.00, green: 0.73, blue: 0.56).opacity(0.72),
-                                Color(red: 1.00, green: 0.73, blue: 0.56).opacity(0.0)
-                            ],
+                            colors: topRightGlowColors,
                             center: .center,
                             startRadius: 30,
                             endRadius: 340
@@ -69,10 +57,7 @@ struct AppWallpaperView: View {
                 Circle()
                     .fill(
                         RadialGradient(
-                            colors: [
-                                Color(red: 0.56, green: 0.72, blue: 1.00).opacity(0.62),
-                                Color(red: 0.56, green: 0.72, blue: 1.00).opacity(0.0)
-                            ],
+                            colors: lowerGlowColors,
                             center: .center,
                             startRadius: 20,
                             endRadius: 300
@@ -85,11 +70,7 @@ struct AppWallpaperView: View {
                 RoundedRectangle(cornerRadius: proxy.size.width * 0.28, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.18),
-                                Color(red: 0.49, green: 0.95, blue: 0.87).opacity(0.06),
-                                Color.clear
-                            ],
+                            colors: diagonalHighlightColors,
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -102,10 +83,7 @@ struct AppWallpaperView: View {
                 RoundedRectangle(cornerRadius: proxy.size.width * 0.22, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [
-                                Color(red: 1.00, green: 0.85, blue: 0.70).opacity(0.20),
-                                Color.clear
-                            ],
+                            colors: lowerPanelHighlightColors,
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -116,23 +94,147 @@ struct AppWallpaperView: View {
                     .blur(radius: 8)
 
                 AppWaveShape(amplitude: 26, frequency: 1.2, phase: 0.15)
-                    .stroke(Color.white.opacity(0.16), lineWidth: 1.4)
+                    .stroke(wavePrimaryColor, lineWidth: 1.4)
                     .frame(height: proxy.size.height * 0.28)
                     .offset(y: proxy.size.height * 0.18)
 
                 AppWaveShape(amplitude: 18, frequency: 1.55, phase: 0.65)
-                    .stroke(Color(red: 0.78, green: 0.95, blue: 1.00).opacity(0.12), lineWidth: 1.0)
+                    .stroke(waveSecondaryColor, lineWidth: 1.0)
                     .frame(height: proxy.size.height * 0.2)
                     .offset(y: proxy.size.height * 0.28)
 
                 LinearGradient(
-                    colors: [Color.clear, Color.black.opacity(0.18)],
+                    colors: overlayFadeColors,
                     startPoint: .top,
                     endPoint: .bottom
                 )
             }
         }
         .ignoresSafeArea()
+    }
+
+    private var isDarkMode: Bool {
+        colorScheme == .dark
+    }
+
+    private var baseGradientColors: [Color] {
+        if isDarkMode {
+            return [
+                Color(red: 0.02, green: 0.05, blue: 0.12),
+                Color(red: 0.03, green: 0.12, blue: 0.18),
+                Color(red: 0.07, green: 0.10, blue: 0.24)
+            ]
+        }
+
+        return [
+            Color(red: 0.06, green: 0.12, blue: 0.24),
+            Color(red: 0.06, green: 0.28, blue: 0.33),
+            Color(red: 0.16, green: 0.19, blue: 0.44)
+        ]
+    }
+
+    private var accentGradientColors: [Color] {
+        if isDarkMode {
+            return [
+                Color(red: 0.56, green: 0.40, blue: 0.28).opacity(0.12),
+                Color.clear,
+                Color(red: 0.24, green: 0.52, blue: 0.70).opacity(0.10)
+            ]
+        }
+
+        return [
+            Color(red: 0.99, green: 0.78, blue: 0.58).opacity(0.18),
+            Color.clear,
+            Color(red: 0.42, green: 0.84, blue: 0.92).opacity(0.14)
+        ]
+    }
+
+    private var topLeftGlowColors: [Color] {
+        if isDarkMode {
+            return [
+                Color(red: 0.28, green: 0.78, blue: 0.72).opacity(0.56),
+                Color(red: 0.28, green: 0.78, blue: 0.72).opacity(0.0)
+            ]
+        }
+
+        return [
+            Color(red: 0.49, green: 0.95, blue: 0.87).opacity(0.92),
+            Color(red: 0.49, green: 0.95, blue: 0.87).opacity(0.0)
+        ]
+    }
+
+    private var topRightGlowColors: [Color] {
+        if isDarkMode {
+            return [
+                Color(red: 0.82, green: 0.54, blue: 0.42).opacity(0.42),
+                Color(red: 0.82, green: 0.54, blue: 0.42).opacity(0.0)
+            ]
+        }
+
+        return [
+            Color(red: 1.00, green: 0.73, blue: 0.56).opacity(0.72),
+            Color(red: 1.00, green: 0.73, blue: 0.56).opacity(0.0)
+        ]
+    }
+
+    private var lowerGlowColors: [Color] {
+        if isDarkMode {
+            return [
+                Color(red: 0.36, green: 0.50, blue: 0.88).opacity(0.48),
+                Color(red: 0.36, green: 0.50, blue: 0.88).opacity(0.0)
+            ]
+        }
+
+        return [
+            Color(red: 0.56, green: 0.72, blue: 1.00).opacity(0.62),
+            Color(red: 0.56, green: 0.72, blue: 1.00).opacity(0.0)
+        ]
+    }
+
+    private var diagonalHighlightColors: [Color] {
+        if isDarkMode {
+            return [
+                Color.white.opacity(0.08),
+                Color(red: 0.28, green: 0.78, blue: 0.72).opacity(0.04),
+                Color.clear
+            ]
+        }
+
+        return [
+            Color.white.opacity(0.18),
+            Color(red: 0.49, green: 0.95, blue: 0.87).opacity(0.06),
+            Color.clear
+        ]
+    }
+
+    private var lowerPanelHighlightColors: [Color] {
+        if isDarkMode {
+            return [
+                Color(red: 0.70, green: 0.58, blue: 0.48).opacity(0.10),
+                Color.clear
+            ]
+        }
+
+        return [
+            Color(red: 1.00, green: 0.85, blue: 0.70).opacity(0.20),
+            Color.clear
+        ]
+    }
+
+    private var wavePrimaryColor: Color {
+        isDarkMode ? Color.white.opacity(0.10) : Color.white.opacity(0.16)
+    }
+
+    private var waveSecondaryColor: Color {
+        isDarkMode
+            ? Color(red: 0.66, green: 0.84, blue: 0.98).opacity(0.08)
+            : Color(red: 0.78, green: 0.95, blue: 1.00).opacity(0.12)
+    }
+
+    private var overlayFadeColors: [Color] {
+        isDarkMode
+            ? [Color.clear, Color.black.opacity(0.30)]
+            : [Color.clear, Color.black.opacity(0.18)]
     }
 }
 

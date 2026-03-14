@@ -65,7 +65,6 @@ struct OnboardingView: View {
                 .padding(.bottom)
             }
         }
-        .preferredColorScheme(.dark)
     }
     
     var canProceed: Bool {
