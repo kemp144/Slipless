@@ -31,6 +31,12 @@ struct ProgressAnalytics {
     
     static func calculateLongestGap(slips: [SlipEvent], startDate: Date) -> TimeInterval? {
         let validSlips = slips.filter { $0.date >= startDate }
+        
+        // If no slips yet, the longest gap IS the current streak from start to now
+        if validSlips.isEmpty {
+            return Date().timeIntervalSince(startDate)
+        }
+        
         let sortedSlips = validSlips.sorted { $0.date < $1.date }
         var longest: TimeInterval = 0
         var previousDate = startDate

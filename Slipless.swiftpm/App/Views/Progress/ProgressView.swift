@@ -25,6 +25,7 @@ struct ProgressView: View {
     var body: some View {
         NavigationStack {
             if let habit = habit {
+                let effectiveStart = habit.lastSlipDate ?? habit.startDate
                 ScrollView {
                     VStack(spacing: 20) {
                         // Calendar Heatmap
@@ -38,15 +39,15 @@ struct ProgressView: View {
                                 .padding(.horizontal)
                             
                             VStack(spacing: 0) {
-                                if let avgTime = ProgressAnalytics.calculateAverageTimeBetweenSlips(slips: habit.slips, startDate: habit.startDate) {
+                                if let avgTime = ProgressAnalytics.calculateAverageTimeBetweenSlips(slips: habit.slips, startDate: effectiveStart) {
                                     StatRow(title: "Average Time Between Slips", value: formatTimeInterval(avgTime))
                                 }
                                 
-                                if let longestGap = ProgressAnalytics.calculateLongestGap(slips: habit.slips, startDate: habit.startDate) {
+                                if let longestGap = ProgressAnalytics.calculateLongestGap(slips: habit.slips, startDate: effectiveStart) {
                                     StatRow(title: "Longest Streak", value: formatTimeInterval(longestGap))
                                 }
                                 
-                                if let improvementText = ProgressAnalytics.generateImprovementText(slips: habit.slips, startDate: habit.startDate) {
+                                if let improvementText = ProgressAnalytics.generateImprovementText(slips: habit.slips, startDate: effectiveStart) {
                                     Divider()
                                     HStack {
                                         Text(improvementText)
