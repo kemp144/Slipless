@@ -16,8 +16,8 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
-                
+                AppWallpaperView()
+
                 if let habit = habit {
                     ScrollView {
                         VStack(spacing: 24) {

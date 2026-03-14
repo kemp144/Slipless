@@ -30,8 +30,7 @@ struct CalendarHeatmapView: View {
             .padding(.top, 4)
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(12)
+        .appCardStyle()
     }
     
     enum DayStatus {

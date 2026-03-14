@@ -12,33 +12,39 @@ struct DailyCheckInView: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section(header: Text("How was today?")) {
-                    Picker("Feeling", selection: $feeling) {
-                        Text("Easy").tag(CheckInFeeling.easy)
-                        Text("Okay").tag(CheckInFeeling.okay)
-                        Text("Hard").tag(CheckInFeeling.hard)
+            ZStack {
+                AppWallpaperView()
+
+                Form {
+                    Section(header: Text("How was today?")) {
+                        Picker("Feeling", selection: $feeling) {
+                            Text("Easy").tag(CheckInFeeling.easy)
+                            Text("Okay").tag(CheckInFeeling.okay)
+                            Text("Hard").tag(CheckInFeeling.hard)
+                        }
+                        .pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
-                }
-                
-                Section(header: Text("Did you feel an urge?")) {
-                    Picker("Urge Level", selection: $urgeLevel) {
-                        Text("No").tag(CheckInUrgeLevel.none)
-                        Text("A little").tag(CheckInUrgeLevel.little)
-                        Text("Yes").tag(CheckInUrgeLevel.yes)
+
+                    Section(header: Text("Did you feel an urge?")) {
+                        Picker("Urge Level", selection: $urgeLevel) {
+                            Text("No").tag(CheckInUrgeLevel.none)
+                            Text("A little").tag(CheckInUrgeLevel.little)
+                            Text("Yes").tag(CheckInUrgeLevel.yes)
+                        }
+                        .pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
-                }
-                
-                Section(header: Text("Are you still on track?")) {
-                    Picker("Status", selection: $status) {
-                        Text("Yes").tag(CheckInStatus.onTrack)
-                        Text("Had a slip").tag(CheckInStatus.slipped)
+
+                    Section(header: Text("Are you still on track?")) {
+                        Picker("Status", selection: $status) {
+                            Text("Yes").tag(CheckInStatus.onTrack)
+                            Text("Had a slip").tag(CheckInStatus.slipped)
+                        }
+                        .pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .listRowBackground(Color.white.opacity(0.08))
             .navigationTitle("Daily Check-in")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

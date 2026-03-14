@@ -22,5 +22,7 @@ struct MainTabView: View {
                 .tag(3)
         }
         .accentColor(.white)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }

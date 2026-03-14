@@ -12,48 +12,54 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                Section(header: Text("Privacy")) {
-                    Toggle("Stealth Mode", isOn: Bindable(settings).isStealthModeEnabled)
-                    Text("Hides habit names in widgets and home screen.")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-                
-                Section(header: Text("Data")) {
-                    Button(action: {
-                        if let habit = habits.first {
-                            exportSummaryText = ProgressAnalytics.generateExportSummaryText(profile: habit, isStealthMode: settings.isStealthModeEnabled)
-                            showingShareSheet = true
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "square.and.arrow.up")
-                            Text("Export Progress Summary")
-                        }
-                    }
-                    .disabled(habits.first == nil)
-                }
-                
-                Section(header: Text("Legal")) {
-                    Link("Privacy Policy", destination: URL(string: settings.privacyPolicyURL)!)
-                    NavigationLink("App Review Notes", destination: AppReviewNotesView())
-                }
-                
-                Section {
-                    Button("Reset All Data", role: .destructive) {
-                        showingResetAlert = true
-                    }
-                }
-                
-                Section(header: Text("About")) {
-                    HStack {
-                        Text("Version")
-                        Spacer()
-                        Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
+            ZStack {
+                AppWallpaperView()
+
+                List {
+                    Section(header: Text("Privacy")) {
+                        Toggle("Stealth Mode", isOn: Bindable(settings).isStealthModeEnabled)
+                        Text("Hides habit names in widgets and home screen.")
+                            .font(.caption)
                             .foregroundColor(.gray)
                     }
+
+                    Section(header: Text("Data")) {
+                        Button(action: {
+                            if let habit = habits.first {
+                                exportSummaryText = ProgressAnalytics.generateExportSummaryText(profile: habit, isStealthMode: settings.isStealthModeEnabled)
+                                showingShareSheet = true
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Export Progress Summary")
+                            }
+                        }
+                        .disabled(habits.first == nil)
+                    }
+
+                    Section(header: Text("Legal")) {
+                        Link("Privacy Policy", destination: URL(string: settings.privacyPolicyURL)!)
+                        NavigationLink("App Review Notes", destination: AppReviewNotesView())
+                    }
+
+                    Section {
+                        Button("Reset All Data", role: .destructive) {
+                            showingResetAlert = true
+                        }
+                    }
+
+                    Section(header: Text("About")) {
+                        HStack {
+                            Text("Version")
+                            Spacer()
+                            Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
+                                .foregroundColor(.gray)
+                        }
+                    }
                 }
+                .scrollContentBackground(.hidden)
+                .listRowBackground(Color.white.opacity(0.08))
             }
             .navigationTitle("Settings")
             .alert("Reset Everything?", isPresented: $showingResetAlert) {

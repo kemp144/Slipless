@@ -14,38 +14,44 @@ struct SlipLogView: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section(header: Text("When did it happen?")) {
-                    DatePicker("Date & Time", selection: $date)
-                }
-                
-                Section(header: Text("Trigger")) {
-                    Picker("What triggered it?", selection: $selectedTrigger) {
-                        Text("Select...").tag(String?.none)
-                        ForEach(triggers, id: \.self) { trigger in
-                            Text(trigger).tag(String?.some(trigger))
+            ZStack {
+                AppWallpaperView()
+
+                Form {
+                    Section(header: Text("When did it happen?")) {
+                        DatePicker("Date & Time", selection: $date)
+                    }
+
+                    Section(header: Text("Trigger")) {
+                        Picker("What triggered it?", selection: $selectedTrigger) {
+                            Text("Select...").tag(String?.none)
+                            ForEach(triggers, id: \.self) { trigger in
+                                Text(trigger).tag(String?.some(trigger))
+                            }
                         }
                     }
-                }
-                
-                Section(header: Text("Intensity (1-5)")) {
-                    Slider(value: $intensity, in: 1...5, step: 1) {
-                        Text("Intensity")
+
+                    Section(header: Text("Intensity (1-5)")) {
+                        Slider(value: $intensity, in: 1...5, step: 1) {
+                            Text("Intensity")
+                        }
+                        HStack {
+                            Text("Mild")
+                            Spacer()
+                            Text("Strong")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.gray)
                     }
-                    HStack {
-                        Text("Mild")
-                        Spacer()
-                        Text("Strong")
+
+                    Section(header: Text("Note")) {
+                        TextEditor(text: $note)
+                            .frame(height: 100)
                     }
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                }
-                
-                Section(header: Text("Note")) {
-                    TextEditor(text: $note)
-                        .frame(height: 100)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .listRowBackground(Color.white.opacity(0.08))
             .navigationTitle("Log Slip")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

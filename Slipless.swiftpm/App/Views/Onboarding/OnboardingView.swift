@@ -8,8 +8,8 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-            
+            AppWallpaperView()
+
             VStack {
                 // Progress Bar
                 SwiftUI.ProgressView(value: Double(viewModel.step + 1), total: 6.0)

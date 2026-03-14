@@ -19,8 +19,8 @@ struct UrgeResetView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-            
+            AppWallpaperView()
+
             VStack {
                 switch currentState {
                 case .intro:

@@ -24,119 +24,115 @@ struct ProgressView: View {
     
     var body: some View {
         NavigationStack {
-            if let habit = habit {
-                let effectiveStart = habit.lastSlipDate ?? habit.startDate
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Calendar Heatmap
-                        CalendarHeatmapView(habit: habit)
-                            .padding(.horizontal)
-                        
-                        // Recovery Trends & Stats
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Recovery Trends")
-                                .font(.headline)
+            ZStack {
+                AppWallpaperView()
+
+                if let habit = habit {
+                    let effectiveStart = habit.lastSlipDate ?? habit.startDate
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            CalendarHeatmapView(habit: habit)
                                 .padding(.horizontal)
-                            
-                            VStack(spacing: 0) {
-                                if let avgTime = ProgressAnalytics.calculateAverageTimeBetweenSlips(slips: habit.slips, startDate: effectiveStart) {
-                                    StatRow(title: "Average Time Between Slips", value: formatTimeInterval(avgTime))
-                                }
-                                
-                                if let longestGap = ProgressAnalytics.calculateLongestGap(slips: habit.slips, startDate: effectiveStart) {
-                                    StatRow(title: "Longest Streak", value: formatTimeInterval(longestGap))
-                                }
-                                
-                                if let improvementText = ProgressAnalytics.generateImprovementText(slips: habit.slips, startDate: effectiveStart) {
-                                    Divider()
-                                    HStack {
-                                        Text(improvementText)
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
-                                            .padding(.vertical, 8)
-                                        Spacer()
-                                    }
+
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Recovery Trends")
+                                    .font(.headline)
                                     .padding(.horizontal)
+
+                                VStack(spacing: 0) {
+                                    if let avgTime = ProgressAnalytics.calculateAverageTimeBetweenSlips(slips: habit.slips, startDate: effectiveStart) {
+                                        StatRow(title: "Average Time Between Slips", value: formatTimeInterval(avgTime))
+                                    }
+
+                                    if let longestGap = ProgressAnalytics.calculateLongestGap(slips: habit.slips, startDate: effectiveStart) {
+                                        StatRow(title: "Longest Streak", value: formatTimeInterval(longestGap))
+                                    }
+
+                                    if let improvementText = ProgressAnalytics.generateImprovementText(slips: habit.slips, startDate: effectiveStart) {
+                                        Divider()
+                                        HStack {
+                                            Text(improvementText)
+                                                .font(.subheadline)
+                                                .foregroundColor(.secondary)
+                                                .padding(.vertical, 8)
+                                            Spacer()
+                                        }
+                                        .padding(.horizontal)
+                                    }
                                 }
-                            }
-                            .background(Color(.secondarySystemGroupedBackground))
-                            .cornerRadius(12)
-                            .padding(.horizontal)
-                        }
-                        
-                        // Pattern Insights
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Pattern Insights")
-                                .font(.headline)
+                                .appCardStyle()
                                 .padding(.horizontal)
-                            
-                            VStack(alignment: .leading, spacing: 8) {
-                                if let triggerInsight = ProgressAnalytics.determineMostCommonTrigger(slips: habit.slips) {
-                                    InsightRow(icon: "lightbulb.fill", color: .yellow, text: triggerInsight)
-                                }
-                                
-                                let events = habit.slips.map { $0.date } + habit.urges.map { $0.date }
-                                if let timeInsight = ProgressAnalytics.determineDifficultTimeOfDay(events: events) {
-                                    InsightRow(icon: "clock.fill", color: .blue, text: timeInsight)
-                                }
-                                
-                                if habit.slips.isEmpty && habit.urges.isEmpty {
-                                    Text("Not enough data for insights yet.")
-                                        .foregroundColor(.secondary)
-                                        .font(.subheadline)
-                                }
                             }
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(.secondarySystemGroupedBackground))
-                            .cornerRadius(12)
-                            .padding(.horizontal)
-                        }
-                        
-                        // Milestones
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Milestones")
-                                .font(.headline)
+
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Pattern Insights")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+
+                                VStack(alignment: .leading, spacing: 8) {
+                                    if let triggerInsight = ProgressAnalytics.determineMostCommonTrigger(slips: habit.slips) {
+                                        InsightRow(icon: "lightbulb.fill", color: .yellow, text: triggerInsight)
+                                    }
+
+                                    let events = habit.slips.map { $0.date } + habit.urges.map { $0.date }
+                                    if let timeInsight = ProgressAnalytics.determineDifficultTimeOfDay(events: events) {
+                                        InsightRow(icon: "clock.fill", color: .blue, text: timeInsight)
+                                    }
+
+                                    if habit.slips.isEmpty && habit.urges.isEmpty {
+                                        Text("Not enough data for insights yet.")
+                                            .foregroundColor(.secondary)
+                                            .font(.subheadline)
+                                    }
+                                }
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .appCardStyle()
                                 .padding(.horizontal)
-                            
-                            VStack(spacing: 0) {
-                                ForEach(milestones) { milestone in
-                                    HStack {
-                                        Image(systemName: milestone.isUnlocked ? "medal.fill" : "medal")
-                                            .foregroundColor(milestone.isUnlocked ? .yellow : .gray)
-                                            .frame(width: 24)
-                                        
-                                        Text(milestone.title)
-                                            .fontWeight(milestone.isUnlocked ? .bold : .regular)
-                                            .foregroundColor(milestone.isUnlocked ? .primary : .gray)
-                                        
-                                        Spacer()
-                                        
-                                        if milestone.isUnlocked {
-                                            Image(systemName: "checkmark")
-                                                .foregroundColor(.green)
-                                                .font(.caption)
+                            }
+
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Milestones")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+
+                                VStack(spacing: 0) {
+                                    ForEach(milestones) { milestone in
+                                        HStack {
+                                            Image(systemName: milestone.isUnlocked ? "medal.fill" : "medal")
+                                                .foregroundColor(milestone.isUnlocked ? .yellow : .gray)
+                                                .frame(width: 24)
+
+                                            Text(milestone.title)
+                                                .fontWeight(milestone.isUnlocked ? .bold : .regular)
+                                                .foregroundColor(milestone.isUnlocked ? .primary : .gray)
+
+                                            Spacer()
+
+                                            if milestone.isUnlocked {
+                                                Image(systemName: "checkmark")
+                                                    .foregroundColor(.green)
+                                                    .font(.caption)
+                                            }
+                                        }
+                                        .padding(.vertical, 12)
+                                        .padding(.horizontal)
+
+                                        if milestone.id != milestones.last?.id {
+                                            Divider()
                                         }
                                     }
-                                    .padding(.vertical, 12)
-                                    .padding(.horizontal)
-                                    
-                                    if milestone.id != milestones.last?.id {
-                                        Divider()
-                                    }
                                 }
+                                .appCardStyle()
+                                .padding(.horizontal)
                             }
-                            .background(Color(.secondarySystemGroupedBackground))
-                            .cornerRadius(12)
-                            .padding(.horizontal)
                         }
+                        .padding(.vertical)
                     }
-                    .padding(.vertical)
+                    .navigationTitle("Progress")
+                } else {
+                    ContentUnavailableView("No Data", systemImage: "chart.bar")
                 }
-                .navigationTitle("Progress")
-                .background(Color(.systemGroupedBackground))
-            } else {
-                ContentUnavailableView("No Data", systemImage: "chart.bar")
             }
         }
     }
