@@ -9,6 +9,7 @@ struct SlipLogView: View {
     @State private var intensity = 3.0
     @State private var selectedTrigger: String?
     @State private var note = ""
+    @State private var showingResetWarning = false
     
     let triggers = ["Stress", "Boredom", "Social", "Tiredness", "Habit Loop", "Other"]
     
@@ -20,6 +21,12 @@ struct SlipLogView: View {
                 Form {
                     Section(header: Text("When did it happen?")) {
                         DatePicker("Date & Time", selection: $date)
+
+                        if willResetCurrentStreak {
+                            Text("This slip is newer than your current last slip and will reset your streak.")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
                     }
 
                     Section(header: Text("Trigger")) {
@@ -60,13 +67,36 @@ struct SlipLogView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        saveSlip()
-                        dismiss()
+                        handleSaveTapped()
                     }
                     .bold()
                 }
             }
+            .alert("Reset current streak?", isPresented: $showingResetWarning) {
+                Button("Cancel", role: .cancel) { }
+                Button("Log Slip", role: .destructive) {
+                    saveSlip()
+                    dismiss()
+                }
+            } message: {
+                Text("This slip is later than your current streak start and will update your streak to begin from this new slip date.")
+            }
         }
+    }
+
+    var willResetCurrentStreak: Bool {
+        guard let lastSlipDate = habit.lastSlipDate else { return true }
+        return date > lastSlipDate
+    }
+
+    func handleSaveTapped() {
+        if willResetCurrentStreak {
+            showingResetWarning = true
+            return
+        }
+
+        saveSlip()
+        dismiss()
     }
     
     func saveSlip() {

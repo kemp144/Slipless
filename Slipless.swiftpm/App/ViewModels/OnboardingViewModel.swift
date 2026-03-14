@@ -17,7 +17,11 @@ class OnboardingViewModel {
     var noteToSelf: String = ""
     
     // Config
-    let currencyCode = Locale.current.currency?.identifier ?? "USD"
+    let currencyCode = CurrencySupport.currentCurrencyCode
+
+    var currencyDisplay: String {
+        CurrencySupport.currentCurrencyDisplay
+    }
 
     var trimmedCustomName: String {
         customName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -38,6 +42,11 @@ class OnboardingViewModel {
     }
     
     func saveHabit(context: ModelContext, settings: SettingsManager) {
+        let existingHabits = (try? context.fetch(FetchDescriptor<HabitProfile>())) ?? []
+        for existingHabit in existingHabits {
+            context.delete(existingHabit)
+        }
+
         let habit = HabitProfile(
             name: resolvedHabitName,
             mode: selectedMode,

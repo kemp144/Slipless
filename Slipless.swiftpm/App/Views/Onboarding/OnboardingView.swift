@@ -275,7 +275,7 @@ struct OnboardingView: View {
                     .foregroundColor(.white)
                     .appTextShadow(opacity: 0.34, radius: 2, y: 1)
                 HStack {
-                    Text(viewModel.currencyCode)
+                    Text(viewModel.currencyDisplay)
                         .foregroundColor(.appSecondaryText)
                         .appTextShadow(opacity: 0.3, radius: 1.8, y: 1)
                     TextField("0.00", value: $viewModel.moneySavedPerDay, format: .currency(code: viewModel.currencyCode))

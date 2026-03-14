@@ -30,7 +30,7 @@ final class HabitProfile {
          startDate: Date = Date(),
          moneySavedPerDay: Double? = nil,
          timeSavedPerDay: Int? = nil,
-         currencyCode: String = Locale.current.currency?.identifier ?? "USD",
+         currencyCode: String = CurrencySupport.currentCurrencyCode,
          primaryReasonText: String? = nil,
          noteToSelf: String? = nil) {
         self.id = id

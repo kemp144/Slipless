@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct ProgressView: View {
-    @Query private var habits: [HabitProfile]
+    @Query(sort: \HabitProfile.createdDate, order: .reverse) private var habits: [HabitProfile]
     var habit: HabitProfile? { habits.first }
     
     struct Milestone: Identifiable {
