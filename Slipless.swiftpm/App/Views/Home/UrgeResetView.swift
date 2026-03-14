@@ -51,7 +51,7 @@ struct UrgeResetView: View {
             
             Text("Take 60 seconds to reset.")
                 .font(.title3)
-                .foregroundColor(.gray)
+                .foregroundColor(.appSecondaryText)
             
             Spacer()
             
@@ -94,7 +94,7 @@ struct UrgeResetView: View {
             
             Text(isInhale ? "Breathe In" : "Breathe Out")
                 .font(.title2)
-                .foregroundColor(.white.opacity(0.8))
+                .foregroundColor(.appSecondaryText)
                 .padding(.bottom, 60)
         }
     }
@@ -120,11 +120,10 @@ struct UrgeResetView: View {
                                     .foregroundColor(.white)
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(.appSecondaryText)
                             }
                             .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
+                            .appCardStyle()
                         }
                     }
                 }
@@ -156,7 +155,7 @@ struct UrgeResetView: View {
             }
             
             Button(action: {
-                // Still struggling - maybe restart or dismiss
+                recordUrge(outcome: "struggled")
                 dismiss()
             }) {
                 Text("Still Struggling")
@@ -170,8 +169,7 @@ struct UrgeResetView: View {
             }
             
             Button(action: {
-                // Redirect to slip log?
-                // For now just dismiss, user can tap Log Slip on home
+                recordSlipFromUrgeReset()
                 dismiss()
             }) {
                 Text("I Slipped")
@@ -215,6 +213,38 @@ struct UrgeResetView: View {
     func recordUrge(outcome: String) {
         let urge = UrgeEvent(date: Date(), duration: 60, outcome: outcome)
         habit.urges.append(urge)
-        // SwiftData autosave
+        try? modelContext.save()
+    }
+
+    func recordSlipFromUrgeReset() {
+        let slipDate = Date()
+
+        recordUrge(outcome: "struggled")
+
+        if let lastSlipDate = habit.lastSlipDate {
+            if slipDate > lastSlipDate {
+                habit.lastSlipDate = slipDate
+            }
+        } else {
+            habit.lastSlipDate = slipDate
+        }
+
+        let calendar = Calendar.current
+        let alreadyLoggedSlipToday = habit.slips.contains {
+            calendar.isDate($0.date, inSameDayAs: slipDate)
+        }
+
+        if !alreadyLoggedSlipToday {
+            habit.slips.append(
+                SlipEvent(
+                    date: slipDate,
+                    trigger: "Urge Reset",
+                    intensity: 2,
+                    note: "Logged from urge reset"
+                )
+            )
+        }
+
+        try? modelContext.save()
     }
 }

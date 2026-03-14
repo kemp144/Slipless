@@ -38,6 +38,7 @@ struct ProgressView: View {
                                 Text("Recovery Trends")
                                     .font(.headline)
                                     .padding(.horizontal)
+                                    .appTextShadow()
 
                                 VStack(spacing: 0) {
                                     if let avgTime = ProgressAnalytics.calculateAverageTimeBetweenSlips(slips: habit.slips, startDate: effectiveStart) {
@@ -53,7 +54,7 @@ struct ProgressView: View {
                                         HStack {
                                             Text(improvementText)
                                                 .font(.subheadline)
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(.appSecondaryText)
                                                 .padding(.vertical, 8)
                                             Spacer()
                                         }
@@ -68,6 +69,7 @@ struct ProgressView: View {
                                 Text("Pattern Insights")
                                     .font(.headline)
                                     .padding(.horizontal)
+                                    .appTextShadow()
 
                                 VStack(alignment: .leading, spacing: 8) {
                                     if let triggerInsight = ProgressAnalytics.determineMostCommonTrigger(slips: habit.slips) {
@@ -81,7 +83,7 @@ struct ProgressView: View {
 
                                     if habit.slips.isEmpty && habit.urges.isEmpty {
                                         Text("Not enough data for insights yet.")
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(.appSecondaryText)
                                             .font(.subheadline)
                                     }
                                 }
@@ -95,17 +97,18 @@ struct ProgressView: View {
                                 Text("Milestones")
                                     .font(.headline)
                                     .padding(.horizontal)
+                                    .appTextShadow()
 
                                 VStack(spacing: 0) {
                                     ForEach(milestones) { milestone in
                                         HStack {
                                             Image(systemName: milestone.isUnlocked ? "medal.fill" : "medal")
-                                                .foregroundColor(milestone.isUnlocked ? .yellow : .gray)
+                                                .foregroundColor(milestone.isUnlocked ? .yellow : .appMutedText)
                                                 .frame(width: 24)
 
                                             Text(milestone.title)
                                                 .fontWeight(milestone.isUnlocked ? .bold : .regular)
-                                                .foregroundColor(milestone.isUnlocked ? .primary : .gray)
+                                                .foregroundColor(milestone.isUnlocked ? .appPrimaryText : .appSecondaryText)
 
                                             Spacer()
 
@@ -153,11 +156,13 @@ struct StatRow: View {
     var body: some View {
         HStack {
             Text(title)
-                .foregroundColor(.primary)
+                .foregroundColor(.appPrimaryText)
+                .appTextShadow()
             Spacer()
             Text(value)
-                .foregroundColor(.secondary)
+                .foregroundColor(.appSecondaryText)
                 .fontWeight(.medium)
+                .appTextShadow(opacity: 0.32, radius: 1.5, y: 1)
         }
         .padding(.vertical, 12)
         .padding(.horizontal)
@@ -175,7 +180,8 @@ struct InsightRow: View {
                 .foregroundColor(color)
             Text(text)
                 .font(.subheadline)
-                .foregroundColor(.primary)
+                .foregroundColor(.appPrimaryText)
+                .appTextShadow()
         }
     }
 }

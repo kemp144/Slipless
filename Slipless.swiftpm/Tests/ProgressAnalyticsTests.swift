@@ -1,6 +1,6 @@
 import XCTest
 import SwiftData
-@testable import Slipless
+@testable import SliplessCore
 
 final class ProgressAnalyticsTests: XCTestCase {
 
@@ -96,13 +96,12 @@ final class ProgressAnalyticsTests: XCTestCase {
     
     func testImprovementText_NotImproving() {
         // Given
-        // Slip 2 happened 2 days ago
+        // Previous gap: 1.5 days.
         let slip2 = SlipEvent(date: now.addingTimeInterval(-day * 2), trigger: nil, intensity: 3, note: nil)
-        
-        // Slip 1 happened 1 day ago -> Gap is 1 day
-        let slip1 = SlipEvent(date: now.addingTimeInterval(-day * 1), trigger: nil, intensity: 3, note: nil)
-        
-        // Gap from slip1 to now is 1 day. 1 day is not strictly > 1 day, or maybe worse.
+
+        // Current gap: 12 hours, clearly shorter than the previous gap.
+        let slip1 = SlipEvent(date: now.addingTimeInterval(-(day / 2)), trigger: nil, intensity: 3, note: nil)
+
         let slips = [slip1, slip2]
         
         // When

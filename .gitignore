@@ -1,0 +1,4 @@
+.DS_Store
+Slipless.swiftpm/.build/
+Slipless.swiftpm/.swiftpm/xcode/**/xcuserdata/
+*.xcuserstate

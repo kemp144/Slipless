@@ -1,5 +1,15 @@
 import SwiftUI
 
+extension Color {
+    static let appPrimaryText = Color.white
+    static let appSecondaryText = Color(red: 0.88, green: 0.93, blue: 0.98)
+    static let appMutedText = Color(red: 0.76, green: 0.84, blue: 0.92)
+    static let appCardFill = Color.black.opacity(0.26)
+    static let appCardStroke = Color.white.opacity(0.12)
+    static let appInputFill = Color.black.opacity(0.22)
+    static let appRowFill = Color.black.opacity(0.24)
+}
+
 struct AppWallpaperView: View {
     var body: some View {
         GeometryReader { proxy in
@@ -148,14 +158,34 @@ struct AppWaveShape: Shape {
 }
 
 extension View {
+    func appTextShadow(
+        opacity: Double = 0.38,
+        radius: CGFloat = 2,
+        y: CGFloat = 1
+    ) -> some View {
+        self.shadow(color: Color.black.opacity(opacity), radius: radius, x: 0, y: y)
+    }
+
     func appCardStyle() -> some View {
         self
-            .background(Color.white.opacity(0.10))
+            .background(Color.appCardFill)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+                    .stroke(Color.appCardStroke, lineWidth: 1)
             )
             .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.18), radius: 16, x: 0, y: 10)
+    }
+
+    func appPanelStyle(cornerRadius: CGFloat = 16) -> some View {
+        self
+            .background(Color.appCardFill)
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(Color.appCardStroke, lineWidth: 1)
+            )
+            .cornerRadius(cornerRadius)
+            .shadow(color: Color.black.opacity(0.16), radius: 14, x: 0, y: 8)
     }
 }
 
@@ -221,6 +251,7 @@ struct OptionCard: View {
                     .font(.body)
                     .fontWeight(.medium)
                     .foregroundColor(isSelected ? .black : .white)
+                    .appTextShadow(opacity: isSelected ? 0 : 0.34, radius: 1.5, y: 1)
                 
                 Spacer()
                 
@@ -230,11 +261,11 @@ struct OptionCard: View {
                 }
             }
             .padding()
-            .background(isSelected ? Color.white : Color.white.opacity(0.1))
+            .background(isSelected ? Color.white : Color.appInputFill)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.white : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? Color.white : Color.appCardStroke, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

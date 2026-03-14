@@ -18,21 +18,30 @@ class OnboardingViewModel {
     
     // Config
     let currencyCode = Locale.current.currency?.identifier ?? "USD"
+
+    var trimmedCustomName: String {
+        customName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var resolvedHabitName: String {
+        if selectedPreset?.id == "custom" {
+            return trimmedCustomName.isEmpty ? "Habit" : trimmedCustomName
+        }
+        return selectedPreset?.name ?? "Habit"
+    }
     
     var isValidHabitName: Bool {
         if let preset = selectedPreset, preset.id != "custom" {
             return true
         }
-        return !customName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return !trimmedCustomName.isEmpty
     }
     
     func saveHabit(context: ModelContext, settings: SettingsManager) {
-        let name = (selectedPreset?.id == "custom" ? customName : selectedPreset?.name) ?? "Habit"
-        
         let habit = HabitProfile(
-            name: name,
+            name: resolvedHabitName,
             mode: selectedMode,
-            startDate: startDate,
+            startDate: lastSlipDate,
             moneySavedPerDay: moneySavedPerDay,
             timeSavedPerDay: timeSavedPerDay,
             currencyCode: currencyCode,

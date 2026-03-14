@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import UIKit
+import SliplessCore
 
 @main
 struct SliplessApp: App {
@@ -14,12 +15,6 @@ struct SliplessApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [
-            HabitProfile.self,
-            SlipEvent.self,
-            UrgeEvent.self,
-            PinnedReason.self,
-            DailyCheckIn.self
-        ])
+        .modelContainer(for: appModelTypes)
     }
 }

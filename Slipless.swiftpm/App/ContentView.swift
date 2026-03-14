@@ -1,10 +1,12 @@
 import SwiftUI
 import SwiftData
 
-struct ContentView: View {
+public struct ContentView: View {
     @State private var settings = SettingsManager()
+
+    public init() {}
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             AppWallpaperView()
 

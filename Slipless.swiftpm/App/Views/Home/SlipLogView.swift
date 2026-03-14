@@ -41,7 +41,7 @@ struct SlipLogView: View {
                             Text("Strong")
                         }
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.appSecondaryText)
                     }
 
                     Section(header: Text("Note")) {
@@ -51,7 +51,7 @@ struct SlipLogView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .listRowBackground(Color.white.opacity(0.08))
+            .listRowBackground(Color.appRowFill)
             .navigationTitle("Log Slip")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

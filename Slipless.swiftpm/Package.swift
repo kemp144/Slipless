@@ -20,7 +20,7 @@ let package = Package(
             teamIdentifier: "7B8JYS7JC8",
             displayVersion: "1.0",
             bundleVersion: "1",
-            appIcon: .placeholder(icon: .heart),
+            appIcon: .asset("AppIcon"),
             accentColor: .presetColor(.blue),
             supportedDeviceFamilies: [
                 .pad,
@@ -35,12 +35,29 @@ let package = Package(
         )
     ],
     targets: [
+        .target(
+            name: "SliplessCore",
+            path: "App",
+            exclude: [
+                "Resources",
+                "SliplessApp.swift"
+            ]
+        ),
         .executableTarget(
             name: "AppModule",
+            dependencies: ["SliplessCore"],
             path: "App",
+            sources: [
+                "SliplessApp.swift"
+            ],
             resources: [
                 .process("Resources")
             ]
+        ),
+        .testTarget(
+            name: "AppModuleTests",
+            dependencies: ["SliplessCore"],
+            path: "Tests"
         )
     ]
 )

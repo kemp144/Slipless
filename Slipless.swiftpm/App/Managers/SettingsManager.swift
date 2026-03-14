@@ -15,8 +15,6 @@ class SettingsManager {
         }
     }
     
-    let privacyPolicyURL = "https://example.com/privacy-policy-placeholder" // TODO: Replace with real URL
-    
     init() {
         self.isStealthModeEnabled = UserDefaults.standard.bool(forKey: "isStealthModeEnabled")
         self.hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")

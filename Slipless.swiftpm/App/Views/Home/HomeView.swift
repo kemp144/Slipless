@@ -31,7 +31,8 @@ struct HomeView: View {
                             Text(settings.isStealthModeEnabled ? "On Track" : habit.name)
                                 .font(.title3)
                                 .fontWeight(.medium)
-                                .foregroundColor(.gray)
+                                .foregroundColor(.appSecondaryText)
+                                .appTextShadow()
                             
                             // Check-In Card
                             if !hasCheckedInToday(habit: habit) {
@@ -54,15 +55,28 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showingUrgeSheet) {
-                UrgeResetView(habit: habit!)
+                if let habit = habit {
+                    UrgeResetView(habit: habit)
+                } else {
+                    ContentUnavailableView("No Habit Found", systemImage: "exclamationmark.triangle")
+                }
             }
             .sheet(isPresented: $showingSlipSheet) {
-                SlipLogView(habit: habit!)
+                if let habit = habit {
+                    SlipLogView(habit: habit)
+                } else {
+                    ContentUnavailableView("No Habit Found", systemImage: "exclamationmark.triangle")
+                }
             }
             .sheet(isPresented: $showingCheckInSheet) {
-                DailyCheckInView(habit: habit!)
+                if let habit = habit {
+                    DailyCheckInView(habit: habit)
+                } else {
+                    ContentUnavailableView("No Habit Found", systemImage: "exclamationmark.triangle")
+                }
             }
             .onOpenURL { url in
+                guard habit != nil else { return }
                 if url.host == "urge" {
                     selectedTab = 0
                     showingUrgeSheet = true
@@ -84,10 +98,12 @@ struct HomeView: View {
             Text(count)
                 .font(.system(size: 80, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
+                .appTextShadow(opacity: 0.42, radius: 4, y: 2)
             
             Text(label)
                 .font(.title2)
-                .foregroundColor(.white.opacity(0.8))
+                .foregroundColor(.appSecondaryText)
+                .appTextShadow()
         }
     }
     
@@ -97,18 +113,19 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Daily Check-in")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(.appPrimaryText)
+                        .appTextShadow()
                     Text("Take a moment to log how you're feeling today.")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.appSecondaryText)
+                        .appTextShadow(opacity: 0.32, radius: 1.5, y: 1)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
+                    .foregroundColor(.appSecondaryText)
             }
             .padding()
-            .background(Color.white.opacity(0.1))
-            .cornerRadius(16)
+            .appPanelStyle()
         }
         .buttonStyle(.plain)
     }
@@ -129,11 +146,11 @@ struct HomeView: View {
             Button(action: { showingSlipSheet = true }) {
                 Text(settings.isStealthModeEnabled ? "Log Event" : "Log a slip")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.appSecondaryText)
+                    .appTextShadow(opacity: 0.32, radius: 1.5, y: 1)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(16)
+                    .appPanelStyle()
             }
         }
     }
@@ -148,6 +165,7 @@ struct HomeView: View {
                     Text("Why I Started")
                         .font(.headline)
                         .foregroundColor(.white)
+                        .appTextShadow()
                 }
                 
                 Text(primaryReason)
@@ -155,18 +173,19 @@ struct HomeView: View {
                     .fontWeight(.medium)
                     .foregroundColor(.white)
                     .italic()
+                    .appTextShadow()
                 
                 if let note = habit.noteToSelf, !note.isEmpty {
                     Text(note)
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.appSecondaryText)
+                        .appTextShadow(opacity: 0.32, radius: 1.5, y: 1)
                         .padding(.top, 4)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
-            .background(Color.white.opacity(0.08))
-            .cornerRadius(16)
+            .appPanelStyle()
         }
     }
     
@@ -201,16 +220,17 @@ struct HomeView: View {
         VStack(alignment: .leading) {
             Text(title)
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(.appMutedText)
+                .appTextShadow(opacity: 0.28, radius: 1.5, y: 1)
             Text(value)
                 .font(.title3)
                 .bold()
-                .foregroundColor(.white)
+                .foregroundColor(.appPrimaryText)
+                .appTextShadow()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color.white.opacity(0.08))
-        .cornerRadius(12)
+        .appCardStyle()
     }
     
     func hasCheckedInToday(habit: HabitProfile) -> Bool {

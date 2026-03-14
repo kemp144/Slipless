@@ -127,8 +127,11 @@ struct ProgressAnalytics {
         let startDateStr = formatter.string(from: profile.startDate)
         
         // Calculate Streak
-        let lastSlipDate = profile.slips.max(by: { $0.date < $1.date })?.date ?? profile.startDate
-        let currentStreakSeconds = Date().timeIntervalSince(lastSlipDate)
+        let latestLoggedSlipDate = profile.slips.max(by: { $0.date < $1.date })?.date
+        let effectiveLastSlipDate = [profile.lastSlipDate, latestLoggedSlipDate]
+            .compactMap { $0 }
+            .max() ?? profile.startDate
+        let currentStreakSeconds = Date().timeIntervalSince(effectiveLastSlipDate)
         let days = Int(currentStreakSeconds / 86400)
         
         var summary = "\(title)\n"

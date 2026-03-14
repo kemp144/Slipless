@@ -44,7 +44,7 @@ struct DailyCheckInView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .listRowBackground(Color.white.opacity(0.08))
+            .listRowBackground(Color.appRowFill)
             .navigationTitle("Daily Check-in")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -65,6 +65,34 @@ struct DailyCheckInView: View {
     private func saveCheckIn() {
         let checkIn = DailyCheckIn(feeling: feeling, urgeLevel: urgeLevel, status: status)
         habit.checkIns.append(checkIn)
+
+        if status == .slipped {
+            let slipDate = Date()
+            if let lastSlipDate = habit.lastSlipDate {
+                if slipDate > lastSlipDate {
+                    habit.lastSlipDate = slipDate
+                }
+            } else {
+                habit.lastSlipDate = slipDate
+            }
+
+            let calendar = Calendar.current
+            let alreadyLoggedSlipToday = habit.slips.contains {
+                calendar.isDate($0.date, inSameDayAs: slipDate)
+            }
+
+            if !alreadyLoggedSlipToday {
+                habit.slips.append(
+                    SlipEvent(
+                        date: slipDate,
+                        trigger: "Daily Check-in",
+                        intensity: 1,
+                        note: "Logged from daily check-in"
+                    )
+                )
+            }
+        }
+
         try? modelContext.save()
         
         let generator = UINotificationFeedbackGenerator()

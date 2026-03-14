@@ -8,6 +8,7 @@ struct CalendarHeatmapView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Last 30 Days")
                 .font(.headline)
+                .appTextShadow()
             
             let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
             let days = generateLast30Days()
@@ -94,7 +95,8 @@ struct LegendItem: View {
                 .fill(color)
                 .frame(width: 8, height: 8)
             Text(label)
-                .foregroundColor(.secondary)
+                .foregroundColor(.appSecondaryText)
+                .appTextShadow(opacity: 0.28, radius: 1.5, y: 1)
         }
     }
 }

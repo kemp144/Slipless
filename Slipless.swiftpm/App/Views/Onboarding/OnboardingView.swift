@@ -67,7 +67,7 @@ struct OnboardingView: View {
     
     var canProceed: Bool {
         switch viewModel.step {
-        case 0: return viewModel.selectedPreset != nil && (viewModel.selectedPreset?.id != "custom" || !viewModel.customName.isEmpty)
+        case 0: return viewModel.selectedPreset != nil && viewModel.isValidHabitName
         default: return true
         }
     }
@@ -132,7 +132,7 @@ struct OnboardingView: View {
             
             Text(viewModel.selectedMode == .quit ? "Focus on streaks and total abstinence." : "Focus on tracking frequency and staying within limits.")
                 .font(.subheadline)
-                .foregroundColor(.gray)
+                .foregroundColor(.appSecondaryText)
                 .padding(.top)
         }
         .padding()
@@ -154,7 +154,7 @@ struct OnboardingView: View {
             
             Text("Your streak will be calculated from this time.")
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(.appSecondaryText)
         }
         .padding()
     }
@@ -167,14 +167,14 @@ struct OnboardingView: View {
                 .foregroundColor(.white)
             
             Text("(Optional)")
-                .foregroundColor(.gray)
+                .foregroundColor(.appSecondaryText)
             
             VStack(alignment: .leading) {
                 Text("Money saved per day")
                     .foregroundColor(.white)
                 HStack {
                     Text(viewModel.currencyCode)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.appSecondaryText)
                     TextField("0.00", value: $viewModel.moneySavedPerDay, format: .currency(code: viewModel.currencyCode))
                         .keyboardType(.decimalPad)
                         .foregroundColor(.white)
@@ -220,7 +220,7 @@ struct OnboardingView: View {
                     
                     VStack(alignment: .leading) {
                         Text("A short note to self (Optional)")
-                            .foregroundColor(.gray)
+                            .foregroundColor(.appSecondaryText)
                         TextField("e.g. Just for today.", text: $viewModel.noteToSelf)
                             .padding()
                             .background(Color.white.opacity(0.1))
@@ -245,11 +245,12 @@ struct OnboardingView: View {
                 .foregroundColor(.white)
             
             VStack(spacing: 10) {
-                Text("Habit: \(viewModel.selectedPreset?.name ?? viewModel.customName)")
+                Text("Habit: \(viewModel.resolvedHabitName)")
                 Text("Mode: \(viewModel.selectedMode.rawValue.capitalized)")
                 Text("Start: \(viewModel.lastSlipDate.formatted(date: .abbreviated, time: .shortened))")
             }
             .foregroundColor(.gray)
+            .foregroundColor(.appSecondaryText)
             
             Text("Take it one day at a time.")
                 .font(.headline)
