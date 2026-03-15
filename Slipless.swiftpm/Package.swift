@@ -31,7 +31,8 @@ let package = Package(
                 .landscapeRight,
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
-            ]
+            ],
+            additionalInfoPlistContentFilePath: "App/Config/SubmissionInfo.plist"
         )
     ],
     targets: [
@@ -39,8 +40,10 @@ let package = Package(
             name: "SliplessCore",
             path: "App",
             exclude: [
+                "Config",
                 "Resources",
-                "SliplessApp.swift"
+                "SliplessApp.swift",
+                "Widgets"
             ]
         ),
         .executableTarget(

@@ -5,11 +5,11 @@ Slipless is a private, shame-free iOS app that helps a user quit or reduce one b
 ## Features
 
 - **Private by Default:** No login, no cloud, local storage only.
-- **Stealth Mode:** Hide habit names on the home screen and widgets.
+- **Stealth Mode:** Hide habit names on the home screen.
 - **Urge Reset Flow:** A 60-second breathing timer to help ride out urges.
 - **Slip Log:** Non-judgmental tracking of relapses.
 - **Progress Tracking:** Streaks, money saved, time saved.
-- **Widgets:** Home Screen widgets for quick status checks.
+- **Exports:** Share a progress summary as text or image.
 
 ## Project Structure
 
@@ -18,7 +18,6 @@ Slipless is a private, shame-free iOS app that helps a user quit or reduce one b
 - `ViewModels/`: Business logic (`OnboardingViewModel`).
 - `Views/`: SwiftUI views organized by feature (`Home`, `Progress`, `History`, `Settings`).
 - `Managers/`: Helpers (`SettingsManager`, `TimeFormatter`).
-- `Widgets/`: Widget extension code.
 
 ## Getting Started
 
@@ -33,16 +32,7 @@ Slipless is a private, shame-free iOS app that helps a user quit or reduce one b
     -   Copy the contents of the `Slipless` folder into your new Xcode project directory.
     -   Ensure all files are added to the App target.
 
-3.  **Add Widget Extension:**
-    -   File -> New -> Target -> Widget Extension.
-    -   Name: `SliplessWidget`.
-    -   Replace the generated code with `Widgets/SliplessWidget.swift`.
-    -   **Important:** To share data between the App and Widget, you must:
-        -   Enable "App Groups" capability in both targets.
-        -   Configure the `ModelContainer` to use the shared group container URL.
-        -   Update `SliplessApp.swift` and `SliplessWidget.swift` to point to this container.
-
-4.  **Run:**
+3.  **Run:**
     -   Select a simulator (iPhone 15 Pro recommended) and press Run (Cmd+R).
 
 ## Configuration
@@ -52,14 +42,16 @@ The list of habits is defined in `Models/HabitPreset.swift`.
 - `isMature`: Flags habits like "Alcohol" or "Porn".
 - **App Store Submission:** If you wish to submit a rating-friendly version first, you can modify `HabitPreset.availablePresets` to filter out mature content.
 
-### Privacy Policy
-Update the `privacyPolicyURL` in `Managers/SettingsManager.swift` before submission.
+### App Store URLs
+Host the contents of the `docs/` folder with GitHub Pages and use these URLs in App Store Connect:
+- `https://robertengel.github.io/Slipless/privacy-policy.html`
+- `https://robertengel.github.io/Slipless/support.html`
 
 ## Architecture
 
 - **MVVM:** Views observe ViewModels or query SwiftData models directly.
 - **SwiftData:** Used for all persistence.
-- **Clean UI:** No UIKit, pure SwiftUI.
+- **UI Stack:** SwiftUI-first, with small UIKit interop only for the iOS share sheet.
 
 ## License
 

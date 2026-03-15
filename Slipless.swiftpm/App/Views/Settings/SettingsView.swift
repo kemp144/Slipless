@@ -36,7 +36,7 @@ struct SettingsView: View {
 
                     Section(header: Text("Privacy").appTextShadow(opacity: 0.28, radius: 1.5, y: 1)) {
                         Toggle("Stealth Mode", isOn: Bindable(settings).isStealthModeEnabled)
-                        Text("Hides habit names in widgets and home screen.")
+                        Text("Hides habit names on the home screen.")
                             .font(.caption)
                             .foregroundColor(.appSecondaryText)
                             .appTextShadow(opacity: 0.32, radius: 1.5, y: 1)
@@ -60,6 +60,7 @@ struct SettingsView: View {
                         }
                         .disabled(habits.first == nil)
 
+                        #if DEBUG
                         if !settings.appStoreDemoModeEnabled {
                             Button(action: {
                                 loadScreenshotDemoData()
@@ -71,6 +72,7 @@ struct SettingsView: View {
                                 }
                             }
                         }
+                        #endif
                     }
 
                     Section(header: Text("Legal").appTextShadow(opacity: 0.28, radius: 1.5, y: 1)) {

@@ -1,28 +1,35 @@
 # App Review Notes for Slipless
 
 ## App Overview
-Slipless is a self-improvement utility designed to help users track and reduce one bad habit at a time. It focuses on privacy, simplicity, and non-judgmental support.
+Slipless is a self-improvement utility for tracking and reducing one habit at a time.
+It is privacy-first, local-only, and designed to avoid shame-based language.
 
-## Key Features & Compliance
-- **No Medical Claims:** The app does not diagnose, treat, or cure any condition. It is a tracking tool only.
-- **Privacy:** No user accounts are required. All data is stored locally on the device using SwiftData. No analytics SDKs are used.
-- **Stealth Mode:** Users can hide the name of their habit on the home screen and widgets to protect their privacy in public.
-- **Urge Reset:** A simple 60-second breathing timer to help users pause before acting on an urge. This is a mindfulness exercise, not a medical intervention.
+## Core Review Notes
+- No login or account creation is required.
+- No subscriptions or in-app purchases are included in this build.
+- No analytics SDKs, ad SDKs, or third-party tracking are included.
+- All user data is stored locally on-device using SwiftData.
+- The app does not make medical, diagnostic, or treatment claims.
 
-## Content Ratings
-The app includes optional presets for habits like "Alcohol" or "Porn". These are configurable in the source code.
-- If these presets are enabled, the app may warrant a higher age rating (17+).
-- The app itself contains no explicit imagery or descriptions.
-- The "Stealth Mode" feature ensures that even if a user selects a sensitive habit, it is hidden from casual view.
+## Feature Summary
+- Track one habit with streaks, slips, urges, and daily check-ins.
+- View money saved, time reclaimed, milestones, and progress trends.
+- Use Urge Reset as a simple 60-second mindfulness flow.
+- Export a progress summary as text or image.
+- Optional daily reminder notifications.
+- Optional Face ID lock for privacy.
+- Optional Stealth Mode to hide the habit name on the home screen.
 
-## Data Storage
-- Core Data (via SwiftData) is used for local persistence.
-- UserDefaults is used for simple preferences (Stealth Mode toggle).
+## Notes For Review
+- If Face ID lock is enabled, the app uses LocalAuthentication only.
+- Notifications are optional and requested only when reminders are enabled by the user.
+- The app contains no community, chat, or user-generated content.
+- The app works fully without creating an account.
 
-## Usage Instructions
-1.  Launch the app.
-2.  Complete the onboarding to select a habit (e.g., "Sugar" or "Custom").
-3.  The Home Screen displays the current streak.
-4.  Tap "I have an urge" to start the breathing timer.
-5.  Tap "Log a slip" to record a setback.
-6.  Check "Progress" for stats and milestones.
+## Content Rating Guidance
+The app contains optional habit presets such as Alcohol.
+There is no explicit imagery or graphic content, but the final App Store age rating should be answered honestly based on enabled presets and habit themes.
+
+## URLs To Provide In App Store Connect
+- Privacy Policy URL: https://robertengel.github.io/Slipless/privacy-policy.html
+- Support URL: https://robertengel.github.io/Slipless/support.html
