@@ -2,7 +2,7 @@ import Foundation
 
 struct TimeFormatter {
     static func streakString(from date: Date) -> (String, String) {
-        let diff = Date().timeIntervalSince(date)
+        let diff = max(0, Date().timeIntervalSince(date))
         
         let days = Int(diff) / 86400
         let hours = (Int(diff) % 86400) / 3600
@@ -18,7 +18,7 @@ struct TimeFormatter {
     }
     
     static func detailedStreak(from date: Date) -> String {
-        let diff = Date().timeIntervalSince(date)
+        let diff = max(0, Date().timeIntervalSince(date))
         
         let days = Int(diff) / 86400
         let hours = (Int(diff) % 86400) / 3600

@@ -15,7 +15,7 @@ struct ProgressView: View {
     
     var milestones: [Milestone] {
         guard let habit = habit else { return [] }
-        let currentDays = Calendar.current.dateComponents([.day], from: habit.lastSlipDate ?? habit.startDate, to: Date()).day ?? 0
+        let currentDays = habit.currentStreakDays
         
         let targets = [1, 3, 7, 14, 30, 60, 90, 180, 365]
         return targets.map { target in
@@ -30,7 +30,7 @@ struct ProgressView: View {
                 AppWallpaperView()
 
                 if let habit = habit {
-                    let effectiveStart = habit.lastSlipDate ?? habit.startDate
+                    let effectiveStart = habit.streakAnchorDate
                     ScrollView {
                         VStack(spacing: 20) {
                             CalendarHeatmapView(habit: habit)

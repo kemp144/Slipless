@@ -55,3 +55,13 @@ enum HabitMode: String, Codable {
     case quit
     case reduce
 }
+
+extension HabitProfile {
+    var streakAnchorDate: Date {
+        min(lastSlipDate ?? startDate, Date())
+    }
+
+    var currentStreakDays: Int {
+        max(0, Calendar.current.dateComponents([.day], from: streakAnchorDate, to: Date()).day ?? 0)
+    }
+}

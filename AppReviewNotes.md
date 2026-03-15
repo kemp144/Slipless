@@ -10,6 +10,8 @@ It is privacy-first, local-only, and designed to avoid shame-based language.
 - No analytics SDKs, ad SDKs, or third-party tracking are included.
 - All user data is stored locally on-device using SwiftData.
 - The app does not make medical, diagnostic, or treatment claims.
+- The submitted v1 build does not expose internal demo-data tools.
+- The unfinished widget implementation is not included in the shipping app target.
 
 ## Feature Summary
 - Track one habit with streaks, slips, urges, and daily check-ins.

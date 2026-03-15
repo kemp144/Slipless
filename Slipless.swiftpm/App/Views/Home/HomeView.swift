@@ -98,7 +98,7 @@ struct HomeView: View {
     }
     
     func streakCounter(habit: HabitProfile, date: Date) -> some View {
-        let (count, label) = TimeFormatter.streakString(from: habit.lastSlipDate ?? habit.startDate)
+        let (count, label) = TimeFormatter.streakString(from: habit.streakAnchorDate)
         
         return VStack(spacing: 0) {
             Text(count)
@@ -139,7 +139,7 @@ struct HomeView: View {
     func quickActions(habit: HabitProfile) -> some View {
         VStack(spacing: 16) {
             Button(action: { showingUrgeSheet = true }) {
-                Text(settings.isStealthModeEnabled ? "Need Support" : "I have an urge")
+                Text(settings.isStealthModeEnabled ? "I'm feeling an urge" : "I have an urge")
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.black)
@@ -150,7 +150,7 @@ struct HomeView: View {
             }
             
             Button(action: { showingSlipSheet = true }) {
-                Text(settings.isStealthModeEnabled ? "Log Event" : "Log a slip")
+                Text(settings.isStealthModeEnabled ? "Log a setback" : "I slipped")
                     .font(.subheadline)
                     .foregroundColor(.appSecondaryText)
                     .appTextShadow(opacity: 0.32, radius: 1.5, y: 1)
@@ -225,8 +225,7 @@ struct HomeView: View {
     }
     
     func statsGrid(habit: HabitProfile) -> some View {
-        let fromDate = habit.lastSlipDate ?? habit.startDate
-        let days = Calendar.current.dateComponents([.day], from: fromDate, to: Date()).day ?? 0
+        let days = habit.currentStreakDays
 
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
             // Money Saved
@@ -274,7 +273,7 @@ struct HomeView: View {
     }
 
     func shareAchievementTitle(for habit: HabitProfile) -> String {
-        let (count, label) = TimeFormatter.streakString(from: habit.lastSlipDate ?? habit.startDate)
+        let (count, label) = TimeFormatter.streakString(from: habit.streakAnchorDate)
         let streakText = "\(count) \(label)"
 
         if settings.isStealthModeEnabled {
@@ -290,10 +289,10 @@ struct HomeView: View {
     }
 
     func shareAchievementText(for habit: HabitProfile) -> String {
-        let (count, label) = TimeFormatter.streakString(from: habit.lastSlipDate ?? habit.startDate)
+        let (count, label) = TimeFormatter.streakString(from: habit.streakAnchorDate)
         let urgesWon = habit.urges.filter { $0.outcome == "passed" }.count
         let slipsLogged = habit.slips.count
-        let streakDays = max(0, Calendar.current.dateComponents([.day], from: habit.lastSlipDate ?? habit.startDate, to: Date()).day ?? 0)
+        let streakDays = habit.currentStreakDays
 
         var lines: [String] = []
         if settings.isStealthModeEnabled {
@@ -304,7 +303,7 @@ struct HomeView: View {
 
         lines.append("")
         lines.append("Stats:")
-        lines.append("• Current streak: \(TimeFormatter.detailedStreak(from: habit.lastSlipDate ?? habit.startDate))")
+        lines.append("• Current streak: \(TimeFormatter.detailedStreak(from: habit.streakAnchorDate))")
         lines.append("• Urges won: \(urgesWon)")
         lines.append("• Slips logged: \(slipsLogged)")
 
@@ -333,8 +332,8 @@ struct HomeView: View {
         let renderer = ImageRenderer(
             content: ShareAchievementCardView(
                 title: shareAchievementTitle(for: habit),
-                streakValue: TimeFormatter.streakString(from: habit.lastSlipDate ?? habit.startDate).0,
-                streakLabel: TimeFormatter.streakString(from: habit.lastSlipDate ?? habit.startDate).1,
+                streakValue: TimeFormatter.streakString(from: habit.streakAnchorDate).0,
+                streakLabel: TimeFormatter.streakString(from: habit.streakAnchorDate).1,
                 habitName: settings.isStealthModeEnabled ? "On Track" : habit.name,
                 stats: shareAchievementStats(for: habit)
             )
@@ -345,12 +344,12 @@ struct HomeView: View {
     }
 
     func shareAchievementStats(for habit: HabitProfile) -> [(String, String)] {
-        let streakDays = max(0, Calendar.current.dateComponents([.day], from: habit.lastSlipDate ?? habit.startDate, to: Date()).day ?? 0)
+        let streakDays = habit.currentStreakDays
         let urgesWon = habit.urges.filter { $0.outcome == "passed" }.count
         let slipsLogged = habit.slips.count
 
         var stats: [(String, String)] = [
-            ("Current streak", TimeFormatter.detailedStreak(from: habit.lastSlipDate ?? habit.startDate)),
+            ("Current streak", TimeFormatter.detailedStreak(from: habit.streakAnchorDate)),
             ("Urges won", "\(urgesWon)"),
             ("Slips logged", "\(slipsLogged)")
         ]

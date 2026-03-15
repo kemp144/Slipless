@@ -11,11 +11,11 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \HabitProfile.createdDate, order: .reverse) private var habits: [HabitProfile]
     @Environment(SettingsManager.self) private var settings
-    
+
     @State private var showingResetAlert = false
     @State private var exportSharePayload: ExportSharePayload?
     @State private var showingExportOptions = false
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -59,20 +59,6 @@ struct SettingsView: View {
                             }
                         }
                         .disabled(habits.first == nil)
-
-                        #if DEBUG
-                        if !settings.appStoreDemoModeEnabled {
-                            Button(action: {
-                                loadScreenshotDemoData()
-                            }) {
-                                HStack {
-                                    Image(systemName: "sparkles.rectangle.stack")
-                                    Text("Load App Store Demo Data")
-                                        .appTextShadow(opacity: 0.28, radius: 1.5, y: 1)
-                                }
-                            }
-                        }
-                        #endif
                     }
 
                     Section(header: Text("Legal").appTextShadow(opacity: 0.28, radius: 1.5, y: 1)) {
@@ -166,112 +152,18 @@ struct SettingsView: View {
             String(habit?.urges.count ?? 0)
         ].joined(separator: "|")
     }
-    
+
     func resetData() {
-        // Delete all habits
         for habit in habits {
             modelContext.delete(habit)
         }
-        
-        // Reset settings
+
         settings.hasCompletedOnboarding = false
         settings.isStealthModeEnabled = false
-        settings.appStoreDemoModeEnabled = false
-        
-        // Force save/sync (though SwiftData usually handles it)
-        try? modelContext.save()
-    }
-
-    func loadScreenshotDemoData() {
-        for habit in habits {
-            modelContext.delete(habit)
-        }
-
-        let calendar = Calendar.current
-        let now = Date()
-        let journeyStart = calendar.date(byAdding: .day, value: -150, to: now) ?? now
-        let lastSlipDate = calendar.date(byAdding: .day, value: -43, to: now) ?? journeyStart
-
-        func demoDate(daysAgo: Int, hour: Int, minute: Int = 0) -> Date {
-            let day = calendar.date(byAdding: .day, value: -daysAgo, to: now) ?? now
-            return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
-        }
-
-        let habit = HabitProfile(
-            name: "Smoking",
-            mode: .quit,
-            startDate: journeyStart,
-            moneySavedPerDay: 9.5,
-            timeSavedPerDay: 42,
-            currencyCode: CurrencySupport.currentCurrencyCode,
-            primaryReasonText: "I want my lungs, mornings, and peace of mind back.",
-            noteToSelf: "One craving is not a command. Pause, breathe, move on."
-        )
-
-        habit.lastSlipDate = lastSlipDate
-        habit.reasons = [
-            PinnedReason(text: "Breathe easier"),
-            PinnedReason(text: "Save money"),
-            PinnedReason(text: "Be present with family")
-        ]
-
-        habit.slips = [
-            SlipEvent(
-                date: demoDate(daysAgo: 128, hour: 22, minute: 10),
-                trigger: "Stress",
-                intensity: 3,
-                note: "Late work deadline"
-            ),
-            SlipEvent(
-                date: demoDate(daysAgo: 93, hour: 8, minute: 20),
-                trigger: "Coffee",
-                intensity: 2,
-                note: "Morning routine"
-            ),
-            SlipEvent(
-                date: demoDate(daysAgo: 61, hour: 19, minute: 40),
-                trigger: "Social setting",
-                intensity: 4,
-                note: "Friday night out"
-            ),
-            SlipEvent(
-                date: demoDate(daysAgo: 43, hour: 21, minute: 5),
-                trigger: "Stress",
-                intensity: 4,
-                note: "Last logged slip"
-            )
-        ]
-
-        habit.urges = [
-            UrgeEvent(date: demoDate(daysAgo: 36, hour: 8, minute: 5), duration: 120, outcome: "passed"),
-            UrgeEvent(date: demoDate(daysAgo: 31, hour: 8, minute: 12), duration: 95, outcome: "passed"),
-            UrgeEvent(date: demoDate(daysAgo: 26, hour: 7, minute: 55), duration: 90, outcome: "passed"),
-            UrgeEvent(date: demoDate(daysAgo: 22, hour: 8, minute: 18), duration: 110, outcome: "passed"),
-            UrgeEvent(date: demoDate(daysAgo: 17, hour: 7, minute: 48), duration: 80, outcome: "struggled"),
-            UrgeEvent(date: demoDate(daysAgo: 12, hour: 8, minute: 8), duration: 85, outcome: "passed"),
-            UrgeEvent(date: demoDate(daysAgo: 9, hour: 7, minute: 58), duration: 100, outcome: "passed"),
-            UrgeEvent(date: demoDate(daysAgo: 6, hour: 8, minute: 14), duration: 75, outcome: "passed"),
-            UrgeEvent(date: demoDate(daysAgo: 3, hour: 8, minute: 6), duration: 70, outcome: "passed")
-        ]
-
-        habit.checkIns = [
-            DailyCheckIn(date: demoDate(daysAgo: 7, hour: 20), feeling: .okay, urgeLevel: .little, status: .onTrack),
-            DailyCheckIn(date: demoDate(daysAgo: 6, hour: 20), feeling: .easy, urgeLevel: .none, status: .onTrack),
-            DailyCheckIn(date: demoDate(daysAgo: 5, hour: 20), feeling: .hard, urgeLevel: .yes, status: .onTrack),
-            DailyCheckIn(date: demoDate(daysAgo: 4, hour: 20), feeling: .okay, urgeLevel: .little, status: .onTrack),
-            DailyCheckIn(date: demoDate(daysAgo: 3, hour: 20), feeling: .okay, urgeLevel: .little, status: .onTrack),
-            DailyCheckIn(date: demoDate(daysAgo: 2, hour: 20), feeling: .easy, urgeLevel: .none, status: .onTrack),
-            DailyCheckIn(date: demoDate(daysAgo: 1, hour: 20), feeling: .easy, urgeLevel: .none, status: .onTrack)
-        ]
-
-        modelContext.insert(habit)
-        settings.hasCompletedOnboarding = true
-        settings.isStealthModeEnabled = false
-        settings.dailyReminderEnabled = true
+        settings.dailyReminderEnabled = false
         settings.dailyReminderHour = 20
-        settings.dailyReminderMinute = 30
+        settings.dailyReminderMinute = 0
         settings.faceIDLockEnabled = false
-        settings.appStoreDemoModeEnabled = true
 
         try? modelContext.save()
     }
@@ -286,7 +178,7 @@ struct SettingsView: View {
     private func shareImageCard() {
         guard let habit = habits.first else { return }
 
-        let streakDays = max(0, Calendar.current.dateComponents([.day], from: habit.lastSlipDate ?? habit.startDate, to: Date()).day ?? 0)
+        let streakDays = habit.currentStreakDays
         let title = settings.isStealthModeEnabled ? "Progress Summary" : habit.name
         let moneySavedText: String?
         if let moneySaved = habit.moneySavedPerDay, moneySaved > 0 {

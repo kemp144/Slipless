@@ -38,12 +38,6 @@ class SettingsManager {
             UserDefaults.standard.set(faceIDLockEnabled, forKey: "faceIDLockEnabled")
         }
     }
-
-    var appStoreDemoModeEnabled: Bool {
-        didSet {
-            UserDefaults.standard.set(appStoreDemoModeEnabled, forKey: "appStoreDemoModeEnabled")
-        }
-    }
     
     init() {
         self.isStealthModeEnabled = UserDefaults.standard.bool(forKey: "isStealthModeEnabled")
@@ -57,6 +51,5 @@ class SettingsManager {
         self.dailyReminderMinute = storedMinute ?? 0
 
         self.faceIDLockEnabled = UserDefaults.standard.bool(forKey: "faceIDLockEnabled")
-        self.appStoreDemoModeEnabled = UserDefaults.standard.bool(forKey: "appStoreDemoModeEnabled")
     }
 }

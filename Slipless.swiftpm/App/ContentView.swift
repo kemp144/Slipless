@@ -16,6 +16,10 @@ public struct ContentView: View {
         settings.hasCompletedOnboarding && !habits.isEmpty
     }
 
+    private var shouldObscureSensitiveContent: Bool {
+        shouldShowMainExperience && settings.faceIDLockEnabled && (isAppLocked || isAuthenticating)
+    }
+
     private var reminderSyncToken: String {
         let habit = habits.first
         return [
@@ -31,6 +35,8 @@ public struct ContentView: View {
     public var body: some View {
         ZStack {
             AppWallpaperView()
+                .blur(radius: shouldObscureSensitiveContent ? 18 : 0)
+                .animation(.easeInOut(duration: 0.18), value: shouldObscureSensitiveContent)
 
             Group {
                 if shouldShowMainExperience {
@@ -39,6 +45,9 @@ public struct ContentView: View {
                     OnboardingView()
                 }
             }
+            .blur(radius: shouldObscureSensitiveContent ? 14 : 0)
+            .allowsHitTesting(!shouldObscureSensitiveContent)
+            .animation(.easeInOut(duration: 0.18), value: shouldObscureSensitiveContent)
 
             if shouldShowMainExperience && settings.faceIDLockEnabled && isAppLocked {
                 AppLockOverlayView(isAuthenticating: isAuthenticating) {
@@ -104,7 +113,7 @@ public struct ContentView: View {
     }
 
     private func habitPriority(_ habit: HabitProfile) -> Int {
-        let streakDays = max(0, Calendar.current.dateComponents([.day], from: habit.lastSlipDate ?? habit.startDate, to: Date()).day ?? 0)
+        let streakDays = habit.currentStreakDays
 
         var score = 0
         score += streakDays * 3

@@ -27,8 +27,6 @@ Use the file with the closest native resolution for the target device.
 - iPhone 16 Pro / 17 Pro: `calm-1206x2622.png`
 - iPhone 17 Pro Max: `calm-1320x2868.png`
 
-## Xcode test tip
+## Xcode preview tip
 
-Use `Image("calm-1179x2556")` in SwiftUI for direct testing.
-
-A ready test view is available at `App/Views/Components/WallpaperTestView.swift`.
+Use `Image("calm-1179x2556")` in SwiftUI previews when you need to inspect the wallpaper directly.

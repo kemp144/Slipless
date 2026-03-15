@@ -243,14 +243,20 @@ struct OnboardingView: View {
                 .foregroundColor(.white)
                 .appTextShadow(opacity: 0.42, radius: 2.5, y: 1.5)
             
-            DatePicker("Last Slip", selection: $viewModel.lastSlipDate, displayedComponents: [.date, .hourAndMinute])
+            DatePicker("Last Slip", selection: $viewModel.lastSlipDate, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
                 .datePickerStyle(.graphical)
+                .environment(\.timeZone, .current)
                 .colorScheme(.dark)
                 .padding()
                 .background(Color.white.opacity(0.05))
                 .cornerRadius(12)
             
             Text("Your streak will be calculated from this time.")
+                .font(.caption)
+                .foregroundColor(.appSecondaryText)
+                .appTextShadow(opacity: 0.34, radius: 2, y: 1)
+
+            Text("Choose the date and time you stopped this habit. Slipless will start counting your streak from that moment.")
                 .font(.caption)
                 .foregroundColor(.appSecondaryText)
                 .appTextShadow(opacity: 0.34, radius: 2, y: 1)

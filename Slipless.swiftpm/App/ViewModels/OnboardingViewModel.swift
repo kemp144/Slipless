@@ -47,10 +47,12 @@ class OnboardingViewModel {
             context.delete(existingHabit)
         }
 
+        let normalizedLastSlipDate = min(lastSlipDate, Date())
+
         let habit = HabitProfile(
             name: resolvedHabitName,
             mode: selectedMode,
-            startDate: lastSlipDate,
+            startDate: normalizedLastSlipDate,
             moneySavedPerDay: moneySavedPerDay,
             timeSavedPerDay: timeSavedPerDay,
             currencyCode: currencyCode,
@@ -66,7 +68,7 @@ class OnboardingViewModel {
         
         // If quit mode, set last slip to start date initially if not specified separately (simplified for V1)
         // Or if the user picked a specific slip date in step 3
-        habit.lastSlipDate = lastSlipDate
+        habit.lastSlipDate = normalizedLastSlipDate
         
         context.insert(habit)
         
