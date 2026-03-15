@@ -9,6 +9,7 @@ struct ProgressView: View {
         let id = UUID()
         let days: Int
         let title: String
+        let subtitle: String
         var isUnlocked: Bool
     }
     
@@ -18,7 +19,8 @@ struct ProgressView: View {
         
         let targets = [1, 3, 7, 14, 30, 60, 90, 180, 365]
         return targets.map { target in
-            Milestone(days: target, title: "\(target) Days", isUnlocked: currentDays >= target)
+            let copy = milestoneCopy(for: target)
+            return Milestone(days: target, title: copy.title, subtitle: copy.subtitle, isUnlocked: currentDays >= target)
         }
     }
     
@@ -106,9 +108,15 @@ struct ProgressView: View {
                                                 .foregroundColor(milestone.isUnlocked ? .yellow : .appMutedText)
                                                 .frame(width: 24)
 
-                                            Text(milestone.title)
-                                                .fontWeight(milestone.isUnlocked ? .bold : .regular)
-                                                .foregroundColor(milestone.isUnlocked ? .appPrimaryText : .appSecondaryText)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(milestone.title)
+                                                    .fontWeight(milestone.isUnlocked ? .bold : .regular)
+                                                    .foregroundColor(milestone.isUnlocked ? .appPrimaryText : .appSecondaryText)
+
+                                                Text(milestone.subtitle)
+                                                    .font(.caption)
+                                                    .foregroundColor(.appSecondaryText)
+                                            }
 
                                             Spacer()
 
@@ -146,6 +154,31 @@ struct ProgressView: View {
         formatter.unitsStyle = .full
         formatter.maximumUnitCount = 1
         return formatter.string(from: interval) ?? "0 days"
+    }
+
+    private func milestoneCopy(for days: Int) -> (title: String, subtitle: String) {
+        switch days {
+        case 1:
+            return ("First 24 Hours", "The hardest start is behind you.")
+        case 3:
+            return ("Three Days In", "You're building real momentum now.")
+        case 7:
+            return ("First Full Week", "A whole week of showing up for yourself.")
+        case 14:
+            return ("Two Weeks Strong", "Consistency is starting to feel familiar.")
+        case 30:
+            return ("30 Days Back In Control", "This is no longer just a restart.")
+        case 60:
+            return ("60 Days Of Progress", "Your new pattern is getting stronger.")
+        case 90:
+            return ("90 Days Clear", "Three months of proof that change is real.")
+        case 180:
+            return ("Half A Year Reclaimed", "You've carried this farther than most attempts go.")
+        case 365:
+            return ("One Year Reclaimed", "A full year of choosing your future.")
+        default:
+            return ("\(days) Days", "Progress that keeps compounding.")
+        }
     }
 }
 

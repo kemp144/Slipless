@@ -1,9 +1,10 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 private struct ExportSharePayload: Identifiable {
     let id = UUID()
-    let text: String
+    let activityItems: [Any]
 }
 
 struct SettingsView: View {
@@ -13,6 +14,7 @@ struct SettingsView: View {
     
     @State private var showingResetAlert = false
     @State private var exportSharePayload: ExportSharePayload?
+    @State private var showingExportOptions = false
     
     var body: some View {
         NavigationStack {
@@ -20,9 +22,27 @@ struct SettingsView: View {
                 AppWallpaperView()
 
                 List {
+                    Section(header: Text("Reminders").appTextShadow(opacity: 0.28, radius: 1.5, y: 1)) {
+                        Toggle("Daily Check-in Reminder", isOn: Bindable(settings).dailyReminderEnabled)
+
+                        if settings.dailyReminderEnabled {
+                            DatePicker(
+                                "Reminder Time",
+                                selection: dailyReminderTime,
+                                displayedComponents: .hourAndMinute
+                            )
+                        }
+                    }
+
                     Section(header: Text("Privacy").appTextShadow(opacity: 0.28, radius: 1.5, y: 1)) {
                         Toggle("Stealth Mode", isOn: Bindable(settings).isStealthModeEnabled)
                         Text("Hides habit names in widgets and home screen.")
+                            .font(.caption)
+                            .foregroundColor(.appSecondaryText)
+                            .appTextShadow(opacity: 0.32, radius: 1.5, y: 1)
+
+                        Toggle("Require Face ID", isOn: Bindable(settings).faceIDLockEnabled)
+                        Text("Locks the app when you come back to it.")
                             .font(.caption)
                             .foregroundColor(.appSecondaryText)
                             .appTextShadow(opacity: 0.32, radius: 1.5, y: 1)
@@ -30,14 +50,7 @@ struct SettingsView: View {
 
                     Section(header: Text("Data").appTextShadow(opacity: 0.28, radius: 1.5, y: 1)) {
                         Button(action: {
-                            if let habit = habits.first {
-                                exportSharePayload = ExportSharePayload(
-                                    text: ProgressAnalytics.generateExportSummaryText(
-                                        profile: habit,
-                                        isStealthMode: settings.isStealthModeEnabled
-                                    )
-                                )
-                            }
+                            showingExportOptions = true
                         }) {
                             HStack {
                                 Image(systemName: "square.and.arrow.up")
@@ -47,13 +60,15 @@ struct SettingsView: View {
                         }
                         .disabled(habits.first == nil)
 
-                        Button(action: {
-                            loadScreenshotDemoData()
-                        }) {
-                            HStack {
-                                Image(systemName: "sparkles.rectangle.stack")
-                                Text("Load Screenshot Demo Data")
-                                    .appTextShadow(opacity: 0.28, radius: 1.5, y: 1)
+                        if !settings.appStoreDemoModeEnabled {
+                            Button(action: {
+                                loadScreenshotDemoData()
+                            }) {
+                                HStack {
+                                    Image(systemName: "sparkles.rectangle.stack")
+                                    Text("Load App Store Demo Data")
+                                        .appTextShadow(opacity: 0.28, radius: 1.5, y: 1)
+                                }
                             }
                         }
                     }
@@ -96,10 +111,58 @@ struct SettingsView: View {
             } message: {
                 Text("This will delete your habit, progress, and history. This action cannot be undone.")
             }
+            .sheet(isPresented: $showingExportOptions) {
+                ExportOptionsSheet(
+                    shareTextAction: {
+                        showingExportOptions = false
+                        DispatchQueue.main.async {
+                            shareTextSummary()
+                        }
+                    },
+                    shareImageAction: {
+                        showingExportOptions = false
+                        DispatchQueue.main.async {
+                            shareImageCard()
+                        }
+                    }
+                )
+                .presentationDetents([.height(220)])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(.thinMaterial)
+            }
             .sheet(item: $exportSharePayload) { payload in
-                ShareSheet(activityItems: [payload.text])
+                ShareSheet(activityItems: payload.activityItems)
             }
         }
+        .task(id: reminderSyncToken) {
+            await ReminderManager.syncReminders(for: habits.first, settings: settings)
+        }
+    }
+
+    private var dailyReminderTime: Binding<Date> {
+        Binding(
+            get: {
+                let calendar = Calendar.current
+                return calendar.date(from: DateComponents(hour: settings.dailyReminderHour, minute: settings.dailyReminderMinute)) ?? Date()
+            },
+            set: { newValue in
+                let components = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+                settings.dailyReminderHour = components.hour ?? 20
+                settings.dailyReminderMinute = components.minute ?? 0
+            }
+        )
+    }
+
+    private var reminderSyncToken: String {
+        let habit = habits.first
+        return [
+            settings.dailyReminderEnabled.description,
+            String(settings.dailyReminderHour),
+            String(settings.dailyReminderMinute),
+            habit?.id.uuidString ?? "none",
+            String(habit?.slips.count ?? 0),
+            String(habit?.urges.count ?? 0)
+        ].joined(separator: "|")
     }
     
     func resetData() {
@@ -111,6 +174,7 @@ struct SettingsView: View {
         // Reset settings
         settings.hasCompletedOnboarding = false
         settings.isStealthModeEnabled = false
+        settings.appStoreDemoModeEnabled = false
         
         // Force save/sync (though SwiftData usually handles it)
         try? modelContext.save()
@@ -123,18 +187,23 @@ struct SettingsView: View {
 
         let calendar = Calendar.current
         let now = Date()
-        let journeyStart = calendar.date(byAdding: .day, value: -400, to: now) ?? now
-        let lastSlipDate = calendar.date(byAdding: .day, value: -365, to: now) ?? journeyStart
+        let journeyStart = calendar.date(byAdding: .day, value: -150, to: now) ?? now
+        let lastSlipDate = calendar.date(byAdding: .day, value: -43, to: now) ?? journeyStart
+
+        func demoDate(daysAgo: Int, hour: Int, minute: Int = 0) -> Date {
+            let day = calendar.date(byAdding: .day, value: -daysAgo, to: now) ?? now
+            return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
+        }
 
         let habit = HabitProfile(
             name: "Smoking",
             mode: .quit,
             startDate: journeyStart,
-            moneySavedPerDay: 8.5,
-            timeSavedPerDay: 35,
+            moneySavedPerDay: 9.5,
+            timeSavedPerDay: 42,
             currencyCode: CurrencySupport.currentCurrencyCode,
-            primaryReasonText: "I want my health, lungs, and peace of mind back.",
-            noteToSelf: "One craving is not a command."
+            primaryReasonText: "I want my lungs, mornings, and peace of mind back.",
+            noteToSelf: "One craving is not a command. Pause, breathe, move on."
         )
 
         habit.lastSlipDate = lastSlipDate
@@ -146,48 +215,108 @@ struct SettingsView: View {
 
         habit.slips = [
             SlipEvent(
-                date: calendar.date(byAdding: .day, value: -394, to: now) ?? now,
+                date: demoDate(daysAgo: 128, hour: 22, minute: 10),
                 trigger: "Stress",
                 intensity: 3,
-                note: "Work deadline"
+                note: "Late work deadline"
             ),
             SlipEvent(
-                date: calendar.date(byAdding: .day, value: -386, to: now) ?? now,
+                date: demoDate(daysAgo: 93, hour: 8, minute: 20),
                 trigger: "Coffee",
                 intensity: 2,
                 note: "Morning routine"
             ),
             SlipEvent(
-                date: calendar.date(byAdding: .day, value: -365, to: now) ?? now,
+                date: demoDate(daysAgo: 61, hour: 19, minute: 40),
                 trigger: "Social setting",
+                intensity: 4,
+                note: "Friday night out"
+            ),
+            SlipEvent(
+                date: demoDate(daysAgo: 43, hour: 21, minute: 5),
+                trigger: "Stress",
                 intensity: 4,
                 note: "Last logged slip"
             )
         ]
 
         habit.urges = [
-            UrgeEvent(date: calendar.date(byAdding: .day, value: -320, to: now) ?? now, duration: 90, outcome: "passed"),
-            UrgeEvent(date: calendar.date(byAdding: .day, value: -250, to: now) ?? now, duration: 120, outcome: "passed"),
-            UrgeEvent(date: calendar.date(byAdding: .day, value: -180, to: now) ?? now, duration: 75, outcome: "passed"),
-            UrgeEvent(date: calendar.date(byAdding: .day, value: -60, to: now) ?? now, duration: 80, outcome: "passed"),
-            UrgeEvent(date: calendar.date(byAdding: .day, value: -21, to: now) ?? now, duration: 65, outcome: "struggled"),
-            UrgeEvent(date: calendar.date(byAdding: .day, value: -7, to: now) ?? now, duration: 95, outcome: "passed"),
-            UrgeEvent(date: calendar.date(byAdding: .day, value: -2, to: now) ?? now, duration: 70, outcome: "passed")
+            UrgeEvent(date: demoDate(daysAgo: 36, hour: 8, minute: 5), duration: 120, outcome: "passed"),
+            UrgeEvent(date: demoDate(daysAgo: 31, hour: 8, minute: 12), duration: 95, outcome: "passed"),
+            UrgeEvent(date: demoDate(daysAgo: 26, hour: 7, minute: 55), duration: 90, outcome: "passed"),
+            UrgeEvent(date: demoDate(daysAgo: 22, hour: 8, minute: 18), duration: 110, outcome: "passed"),
+            UrgeEvent(date: demoDate(daysAgo: 17, hour: 7, minute: 48), duration: 80, outcome: "struggled"),
+            UrgeEvent(date: demoDate(daysAgo: 12, hour: 8, minute: 8), duration: 85, outcome: "passed"),
+            UrgeEvent(date: demoDate(daysAgo: 9, hour: 7, minute: 58), duration: 100, outcome: "passed"),
+            UrgeEvent(date: demoDate(daysAgo: 6, hour: 8, minute: 14), duration: 75, outcome: "passed"),
+            UrgeEvent(date: demoDate(daysAgo: 3, hour: 8, minute: 6), duration: 70, outcome: "passed")
         ]
 
         habit.checkIns = [
-            DailyCheckIn(date: calendar.date(byAdding: .day, value: -6, to: now) ?? now, feeling: .okay, urgeLevel: .little, status: .onTrack),
-            DailyCheckIn(date: calendar.date(byAdding: .day, value: -5, to: now) ?? now, feeling: .easy, urgeLevel: .none, status: .onTrack),
-            DailyCheckIn(date: calendar.date(byAdding: .day, value: -4, to: now) ?? now, feeling: .okay, urgeLevel: .little, status: .onTrack),
-            DailyCheckIn(date: calendar.date(byAdding: .day, value: -3, to: now) ?? now, feeling: .hard, urgeLevel: .yes, status: .onTrack),
-            DailyCheckIn(date: calendar.date(byAdding: .day, value: -2, to: now) ?? now, feeling: .okay, urgeLevel: .little, status: .onTrack),
-            DailyCheckIn(date: calendar.date(byAdding: .day, value: -1, to: now) ?? now, feeling: .easy, urgeLevel: .none, status: .onTrack)
+            DailyCheckIn(date: demoDate(daysAgo: 7, hour: 20), feeling: .okay, urgeLevel: .little, status: .onTrack),
+            DailyCheckIn(date: demoDate(daysAgo: 6, hour: 20), feeling: .easy, urgeLevel: .none, status: .onTrack),
+            DailyCheckIn(date: demoDate(daysAgo: 5, hour: 20), feeling: .hard, urgeLevel: .yes, status: .onTrack),
+            DailyCheckIn(date: demoDate(daysAgo: 4, hour: 20), feeling: .okay, urgeLevel: .little, status: .onTrack),
+            DailyCheckIn(date: demoDate(daysAgo: 3, hour: 20), feeling: .okay, urgeLevel: .little, status: .onTrack),
+            DailyCheckIn(date: demoDate(daysAgo: 2, hour: 20), feeling: .easy, urgeLevel: .none, status: .onTrack),
+            DailyCheckIn(date: demoDate(daysAgo: 1, hour: 20), feeling: .easy, urgeLevel: .none, status: .onTrack)
         ]
 
         modelContext.insert(habit)
         settings.hasCompletedOnboarding = true
+        settings.isStealthModeEnabled = false
+        settings.dailyReminderEnabled = true
+        settings.dailyReminderHour = 20
+        settings.dailyReminderMinute = 30
+        settings.faceIDLockEnabled = false
+        settings.appStoreDemoModeEnabled = true
 
         try? modelContext.save()
+    }
+
+    private func shareTextSummary() {
+        guard let habit = habits.first else { return }
+        let text = ProgressAnalytics.generateExportSummaryText(profile: habit, isStealthMode: settings.isStealthModeEnabled)
+        exportSharePayload = ExportSharePayload(activityItems: [text])
+    }
+
+    @MainActor
+    private func shareImageCard() {
+        guard let habit = habits.first else { return }
+
+        let streakDays = max(0, Calendar.current.dateComponents([.day], from: habit.lastSlipDate ?? habit.startDate, to: Date()).day ?? 0)
+        let title = settings.isStealthModeEnabled ? "Progress Summary" : habit.name
+        let moneySavedText: String?
+        if let moneySaved = habit.moneySavedPerDay, moneySaved > 0 {
+            moneySavedText = (Double(streakDays) * moneySaved).formatted(.currency(code: habit.currencyCode))
+        } else {
+            moneySavedText = nil
+        }
+
+        let timeSavedText: String?
+        if let timeSavedPerDay = habit.timeSavedPerDay, timeSavedPerDay > 0 {
+            timeSavedText = formatMinutes(streakDays * timeSavedPerDay)
+        } else {
+            timeSavedText = nil
+        }
+
+        let renderer = ImageRenderer(
+            content: ProgressShareCard(
+                title: title,
+                streakText: "\(streakDays) days",
+                urgesWon: habit.urges.filter { $0.outcome == "passed" }.count,
+                slipsLogged: habit.slips.count,
+                moneySavedText: moneySavedText,
+                timeSavedText: timeSavedText
+            )
+        )
+        renderer.scale = UIScreen.main.scale
+
+        if let image = renderer.uiImage {
+            exportSharePayload = ExportSharePayload(activityItems: [image])
+        } else {
+            shareTextSummary()
+        }
     }
 }
 
@@ -201,6 +330,40 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+private struct ExportOptionsSheet: View {
+    let shareTextAction: () -> Void
+    let shareImageAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 18) {
+            Capsule()
+                .fill(Color.white.opacity(0.18))
+                .frame(width: 42, height: 5)
+                .padding(.top, 8)
+
+            Text("Export Progress")
+                .font(.headline)
+                .foregroundColor(.appPrimaryText)
+
+            Button(action: shareTextAction) {
+                Label("Share Text Summary", systemImage: "doc.text")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.white)
+            .foregroundStyle(.black)
+
+            Button(action: shareImageAction) {
+                Label("Share Image Card", systemImage: "photo")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .tint(.white)
+        }
+        .padding(.horizontal, 20)
+    }
 }
 
 struct PrivacyPolicyView: View {
