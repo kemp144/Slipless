@@ -43,9 +43,10 @@ The app stores user-entered data locally on-device and does not send it to your 
 
 ## Recommended Metadata Choices
 
-- App Name: Slipless: Quit One Habit
-- Subtitle: Private quit-habit tracker with streaks, urges, and slips
-- Promotional Text: Quit or reduce one habit at a time with a calm, private tracker for streaks, slips, urges, daily check-ins, reminders, and real progress.
+- App Name: Slipless: Habit Quit Tracker
+- Subtitle: Smoking, drinking, cravings
+- Promotional Text: Quit smoking, reduce drinking, or break one habit with a private tracker for streaks, urges, slips, reminders, and real progress.
+- Keyword Field: streak,sober,urge,relapse,reduce,alcohol,nicotine,doomscrolling,slips,private,days
 
 ## Description Guardrails
 

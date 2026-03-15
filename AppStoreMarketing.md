@@ -8,24 +8,24 @@ It focuses on calm tracking, real recovery progress, and privacy-first design.
 ## App Name Options
 
 1. Slipless
-2. Slipless: Quit One Habit
-3. Slipless: Habit Quit Tracker
+2. Slipless: Habit Quit Tracker
+3. Slipless: Quit One Habit
 
 Recommended:
-Slipless: Quit One Habit
+Slipless: Habit Quit Tracker
 
 ## Subtitle Options
 
-1. Private quit-habit tracker with streaks, urges, and slips
-2. Track urges, slips, and streaks without shame
-3. A private recovery tracker for one habit at a time
+1. Smoking, drinking, cravings
+2. Private streak and urge tracker
+3. Track cravings and progress
 
 Recommended:
-Private quit-habit tracker with streaks, urges, and slips
+Smoking, drinking, cravings
 
 ## Promotional Text
 
-Quit or reduce one habit at a time with a calm, private tracker for streaks, slips, urges, daily check-ins, reminders, and real progress.
+Quit smoking, reduce drinking, or break one habit with a private tracker for streaks, urges, slips, reminders, and real progress.
 
 ## Short Description Angle
 
@@ -33,11 +33,11 @@ Private by default. No account. No cloud. No shame.
 
 ## Full Description
 
-Slipless helps you quit or reduce one habit at a time in a way that feels private, calm, and realistic.
+Slipless is a private habit quit tracker for people trying to quit smoking, reduce drinking, stop cravings, or break one habit at a time.
 
 Track your streak, log slips without losing your history, and understand your progress with clear insights over time. When cravings hit, use Urge Reset to pause, breathe, and get through the moment without extra noise or pressure.
 
-Slipless is designed for people who want a focused tool, not a social feed.
+Slipless is designed for people who want a focused quit app, not a social feed.
 
 What you can do with Slipless:
 
@@ -56,26 +56,27 @@ Why Slipless feels different:
 - Private by default
 - No login required
 - Local on-device storage
+- Built for paid-app quality, not ad-driven engagement
 - Shame-free language and recovery-friendly design
 - Focused on clarity instead of overwhelm
 
-Whether you're trying to quit smoking, reduce alcohol, stop doomscrolling, or break another personal habit, Slipless gives you a focused space to keep going one day at a time.
+Whether you're trying to quit smoking, drink less, stop doomscrolling, or break another personal habit, Slipless gives you a focused space to keep going one day at a time.
 
 ## Screenshot Copy
 
 ### Screenshot 1
 Headline:
-Quit one habit privately
+Quit one habit, privately
 
 Subheadline:
-A calm, shame-free space to stay on track
+Stay on track without noise, guilt, or clutter
 
 ### Screenshot 2
 Headline:
-Get through hard moments
+Handle cravings calmly
 
 Subheadline:
-Log urges, slips, and keep moving forward
+Use urges, slips, and check-ins to keep momentum
 
 ### Screenshot 3
 Headline:
@@ -89,14 +90,14 @@ Headline:
 Keep the full picture
 
 Subheadline:
-Your slips, urges, and check-ins stay clear and editable
+Edit history, stay honest, and learn from every setback
 
 ### Screenshot 5
 Headline:
-Private by default
+Built for privacy
 
 Subheadline:
-Stealth Mode, Face ID lock, and on-device data only
+Face ID lock, Stealth Mode, and on-device data only
 
 ## Alternate Screenshot Headlines
 
@@ -104,21 +105,25 @@ Stealth Mode, Face ID lock, and on-device data only
 - Stay focused one day at a time
 - A quit tracker without extra noise
 - Your progress, kept simple
+- Private progress, clear focus
 
 ### Progress Alternatives
 - Recovery progress at a glance
 - More than just a streak counter
 - See momentum build over time
+- Proof that change is happening
 
 ### History Alternatives
 - Track setbacks without losing context
 - Recovery is more than perfect days
 - Keep honest records, privately
+- Learn from slips without losing progress
 
 ### Settings Alternatives
 - Built for privacy
 - Calm, simple, secure
 - Your data stays with you
+- Private by design
 
 ## Apple Search Ads Copy Ideas
 
@@ -172,7 +177,31 @@ Slipless helps you quit or reduce one habit at a time with streaks, reminders, i
 
 ## Keywords Seed List
 
-habit tracker, sobriety tracker, quit smoking, quit habit, streak tracker, urge tracker, relapse tracker, private tracker, sober counter, quit drinking, stop habit, recovery tracker
+### Recommended Keyword Field
+
+If final metadata is:
+
+- Name: Slipless: Quit One Habit
+- Subtitle: Smoking, drinking, cravings
+
+Use:
+
+`streak,sober,urge,tracker,relapse,reduce,alcohol,nicotine,doomscrolling,slips,private`
+
+### Backup Keyword Field
+
+If final metadata is:
+
+- Name: Slipless: Habit Quit Tracker
+- Subtitle: Smoking, drinking, cravings
+
+Use:
+
+`streak,sober,urge,relapse,reduce,alcohol,nicotine,doomscrolling,slips,private,days`
+
+### Keyword Seed List
+
+quit smoking, quit drinking, sober counter, habit tracker, urge tracker, streak tracker, relapse tracker, private tracker, cravings, drink less, quit habit, recovery tracker
 
 ## Notes
 
@@ -180,3 +209,4 @@ habit tracker, sobriety tracker, quit smoking, quit habit, streak tracker, urge 
 - Keep the App Store tone supportive, not clinical.
 - Since the widget is not fully production-ready yet, avoid making it a primary marketing promise.
 - The strongest positioning is: private, simple, shame-free, one habit at a time.
+- For ASO, the best discovery angle is quit smoking plus quit drinking, while the best conversion angle is privacy plus premium simplicity.
