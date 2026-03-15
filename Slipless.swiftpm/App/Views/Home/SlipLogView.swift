@@ -23,7 +23,7 @@ struct SlipLogView: View {
                         DatePicker("Date & Time", selection: $date)
 
                         if willResetCurrentStreak {
-                            Text("This slip is newer than your current last slip and will reset your streak.")
+                            Text("This will reset your streak.")
                                 .font(.caption)
                                 .foregroundColor(.red)
                         }
@@ -79,7 +79,7 @@ struct SlipLogView: View {
                     dismiss()
                 }
             } message: {
-                Text("This slip is later than your current streak start and will update your streak to begin from this new slip date.")
+                Text("This will reset your streak.")
             }
         }
     }

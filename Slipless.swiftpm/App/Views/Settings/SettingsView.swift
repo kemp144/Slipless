@@ -1,14 +1,18 @@
 import SwiftUI
 import SwiftData
 
+private struct ExportSharePayload: Identifiable {
+    let id = UUID()
+    let text: String
+}
+
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \HabitProfile.createdDate, order: .reverse) private var habits: [HabitProfile]
     @Environment(SettingsManager.self) private var settings
     
     @State private var showingResetAlert = false
-    @State private var showingShareSheet = false
-    @State private var exportSummaryText = ""
+    @State private var exportSharePayload: ExportSharePayload?
     
     var body: some View {
         NavigationStack {
@@ -27,8 +31,12 @@ struct SettingsView: View {
                     Section(header: Text("Data").appTextShadow(opacity: 0.28, radius: 1.5, y: 1)) {
                         Button(action: {
                             if let habit = habits.first {
-                                exportSummaryText = ProgressAnalytics.generateExportSummaryText(profile: habit, isStealthMode: settings.isStealthModeEnabled)
-                                showingShareSheet = true
+                                exportSharePayload = ExportSharePayload(
+                                    text: ProgressAnalytics.generateExportSummaryText(
+                                        profile: habit,
+                                        isStealthMode: settings.isStealthModeEnabled
+                                    )
+                                )
                             }
                         }) {
                             HStack {
@@ -55,12 +63,6 @@ struct SettingsView: View {
                             PrivacyPolicyView()
                         } label: {
                             Text("Privacy Policy")
-                                .appTextShadow(opacity: 0.28, radius: 1.5, y: 1)
-                        }
-                        NavigationLink {
-                            AppReviewNotesView()
-                        } label: {
-                            Text("App Review Notes")
                                 .appTextShadow(opacity: 0.28, radius: 1.5, y: 1)
                         }
                     }
@@ -94,8 +96,8 @@ struct SettingsView: View {
             } message: {
                 Text("This will delete your habit, progress, and history. This action cannot be undone.")
             }
-            .sheet(isPresented: $showingShareSheet) {
-                ShareSheet(activityItems: [exportSummaryText])
+            .sheet(item: $exportSharePayload) { payload in
+                ShareSheet(activityItems: [payload.text])
             }
         }
     }
@@ -199,32 +201,6 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
-struct AppReviewNotesView: View {
-    var body: some View {
-        ScrollView {
-            Text("""
-            # App Review Notes
-            
-            **Slipless** is a self-improvement utility for tracking habits.
-            
-            - No medical claims are made.
-            - No user accounts or login required.
-            - All data is stored locally on the device using SwiftData.
-            - No analytics SDKs, ad SDKs, subscriptions, or in-app purchases are included.
-            - "Stealth Mode" allows users to hide sensitive custom habit names for privacy.
-            - "Urge Reset" is a simple breathing timer.
-            - A Daily Check-in can also record a slip and update the user's streak data.
-            
-            Users can enter custom habit names, allowing them to track any personal habit they wish to reduce or quit, while the app remains neutral and completely private.
-            """)
-            .foregroundColor(.appPrimaryText)
-            .appTextShadow(opacity: 0.28, radius: 1.5, y: 1)
-            .padding()
-        }
-        .navigationTitle("Review Notes")
-    }
 }
 
 struct PrivacyPolicyView: View {
